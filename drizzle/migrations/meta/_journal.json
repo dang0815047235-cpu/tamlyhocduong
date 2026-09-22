@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790095469326,
+      "tag": "0000_school_counseling_core",
+      "breakpoints": true
+    }
+  ]
 }
