@@ -10,12 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as DangNhapRouteImport } from './routes/dang-nhap'
 import { Route as ThuVienRouteImport } from './routes/thu-vien'
+import { Route as AuthenticatedKiemTraCamXucRouteImport } from './routes/_authenticated/kiem-tra-cam-xuc'
+import { Route as AuthenticatedTroChuyenRouteImport } from './routes/_authenticated/tro-chuyen'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DangNhapRoute = DangNhapRouteImport.update({
@@ -28,33 +35,60 @@ const ThuVienRoute = ThuVienRouteImport.update({
   path: '/thu-vien',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedKiemTraCamXucRoute =
+  AuthenticatedKiemTraCamXucRouteImport.update({
+    id: '/kiem-tra-cam-xuc',
+    path: '/kiem-tra-cam-xuc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTroChuyenRoute = AuthenticatedTroChuyenRouteImport.update({
+  id: '/tro-chuyen',
+  path: '/tro-chuyen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dang-nhap': typeof DangNhapRoute
   '/thu-vien': typeof ThuVienRoute
+  '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dang-nhap': typeof DangNhapRoute
   '/thu-vien': typeof ThuVienRoute
+  '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/dang-nhap': typeof DangNhapRoute
   '/thu-vien': typeof ThuVienRoute
+  '/_authenticated/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/_authenticated/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dang-nhap' | '/thu-vien'
+  fullPaths:
+    '/' | '/dang-nhap' | '/thu-vien' | '/kiem-tra-cam-xuc' | '/tro-chuyen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dang-nhap' | '/thu-vien'
-  id: '__root__' | '/' | '/dang-nhap' | '/thu-vien'
+  to: '/' | '/dang-nhap' | '/thu-vien' | '/kiem-tra-cam-xuc' | '/tro-chuyen'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/dang-nhap'
+    | '/thu-vien'
+    | '/_authenticated/kiem-tra-cam-xuc'
+    | '/_authenticated/tro-chuyen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DangNhapRoute: typeof DangNhapRoute
   ThuVienRoute: typeof ThuVienRoute
 }
@@ -66,6 +100,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dang-nhap': {
@@ -82,11 +123,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ThuVienRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/kiem-tra-cam-xuc': {
+      id: '/_authenticated/kiem-tra-cam-xuc'
+      path: '/kiem-tra-cam-xuc'
+      fullPath: '/kiem-tra-cam-xuc'
+      preLoaderRoute: typeof AuthenticatedKiemTraCamXucRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tro-chuyen': {
+      id: '/_authenticated/tro-chuyen'
+      path: '/tro-chuyen'
+      fullPath: '/tro-chuyen'
+      preLoaderRoute: typeof AuthenticatedTroChuyenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedKiemTraCamXucRoute: typeof AuthenticatedKiemTraCamXucRoute
+  AuthenticatedTroChuyenRoute: typeof AuthenticatedTroChuyenRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedKiemTraCamXucRoute: AuthenticatedKiemTraCamXucRoute,
+  AuthenticatedTroChuyenRoute: AuthenticatedTroChuyenRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DangNhapRoute: DangNhapRoute,
   ThuVienRoute: ThuVienRoute,
 }
