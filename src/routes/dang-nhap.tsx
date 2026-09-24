@@ -28,7 +28,7 @@ export const Route = createFileRoute("/dang-nhap")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { user, role, loading } = useAuth();
+  const { user, role, isAdmin, loading } = useAuth();
   const [busy, setBusy] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -43,15 +43,15 @@ function AuthPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      void navigate({ to: role === "teacher" ? "/giao-vien" : "/tro-chuyen", replace: true });
+      void navigate({ to: isAdmin ? "/quan-tri" : role === "teacher" ? "/giao-vien" : "/tro-chuyen", replace: true });
     }
-  }, [user, role, loading, navigate]);
+  }, [user, role, isAdmin, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail.trim(),
+      email: loginEmail.includes("@") ? loginEmail.trim() : `${loginEmail.trim().toLowerCase()}@pvd.local`,
       password: loginPassword,
     });
     setBusy(false);
@@ -141,10 +141,10 @@ function AuthPage() {
               <TabsContent value="login">
                 <form className="space-y-4 pt-4" onSubmit={handleLogin}>
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="login-email">Email hoặc tên đăng nhập</Label>
                     <Input
                       id="login-email"
-                      type="email"
+                      type="text"
                       required
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
@@ -188,6 +188,11 @@ function AuthPage() {
                       </label>
                     </RadioGroup>
                   </div>
+                  {signupRole === "teacher" && (
+                    <p className="rounded-xl bg-secondary p-3 text-xs text-secondary-foreground">
+                      Tài khoản giáo viên cần được quản trị viên phê duyệt trước khi dùng các tính năng giáo viên.
+                    </p>
+                  )}
                   {signupRole === "student" && (
                     <div className="space-y-2">
                       <Label htmlFor="class">Lớp</Label>
