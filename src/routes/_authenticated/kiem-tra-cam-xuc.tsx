@@ -29,23 +29,26 @@ function QuizPage() {
   const { user } = useAuth();
   const [answers, setAnswers] = useState<(number | null)[]>(QUIZ_QUESTIONS.map(() => null));
   const [score, setScore] = useState<number | null>(null);
+  const [result, setResult] = useState<ReturnType<typeof evaluateQuiz> | null>(null);
   const [saving, setSaving] = useState(false);
 
   const answered = answers.filter((a) => a !== null).length;
-  const result = score === null ? null : evaluateQuiz(score);
 
   const submit = async () => {
     if (answered < QUIZ_QUESTIONS.length) {
       toast.error("Em hãy trả lời hết tất cả câu hỏi nhé.");
       return;
     }
-    const total = answers.reduce<number>((s, a) => s + (a ?? 0), 0);
+    const values = answers.map((a) => a ?? 0);
+    const total = values.reduce((s, a) => s + a, 0);
+    const evaluated = evaluateQuiz(values);
     setScore(total);
+    setResult(evaluated);
     if (user) {
       setSaving(true);
       const { error } = await supabase
         .from("checkins")
-        .insert({ user_id: user.id, score: total, level: evaluateQuiz(total).level });
+        .insert({ user_id: user.id, score: total, level: evaluated.level });
       setSaving(false);
       if (error) toast.error("Không lưu được kết quả, nhưng em vẫn xem được lời khuyên bên dưới.");
     }
@@ -54,12 +57,13 @@ function QuizPage() {
   const reset = () => {
     setAnswers(QUIZ_QUESTIONS.map(() => null));
     setScore(null);
+    setResult(null);
   };
 
   return (
     <PageShell
       title="Bài kiểm tra cảm xúc ngắn"
-      description="Hãy chọn phương án đúng nhất với em trong hai tuần gần đây. Bài làm chỉ mất khoảng 2 phút."
+      description="Hãy chọn phương án đúng nhất với em trong hai tuần gần đây. Bài gồm 20 câu, mất khoảng 5 phút."
     >
       <Card className="mb-6 border-accent bg-accent/30">
         <CardContent className="flex gap-3 pt-6 text-sm">
@@ -81,10 +85,10 @@ function QuizPage() {
           </div>
 
           {QUIZ_QUESTIONS.map((q, qi) => (
-            <Card key={q}>
+            <Card key={q.text}>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
-                  Câu {qi + 1}. {q}
+                  Câu {qi + 1}. {q.text}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
@@ -128,6 +132,18 @@ function QuizPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Mức độ theo từng nhóm</p>
+              {result.categories.map((c) => (
+                <div key={c.key}>
+                  <div className="flex justify-between text-xs">
+                    <span>{c.label}</span>
+                    <span>{c.percent}%</span>
+                  </div>
+                  <Progress value={c.percent} />
+                </div>
+              ))}
+            </div>
             <ul className="space-y-2 text-sm">
               {result.advice.map((a) => (
                 <li key={a}>• {a}</li>
