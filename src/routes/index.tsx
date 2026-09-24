@@ -41,7 +41,7 @@ const supports = [
   {
     icon: ClipboardList,
     title: "Kiểm tra cảm xúc ngắn",
-    desc: "7 câu hỏi nhanh giúp em tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
+    desc: "20 câu hỏi giúp em tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
     to: "/kiem-tra-cam-xuc" as const,
   },
   {
@@ -157,7 +157,7 @@ function Home() {
             </CardHeader>
             <CardContent className="space-y-1 text-sm text-muted-foreground">
               <p>• Đây là sản phẩm học tập, sử dụng dữ liệu minh họa.</p>
-              <p>• Trợ lý chỉ trả lời theo kịch bản từ khóa đã chuẩn bị, không tự tạo câu trả lời.</p>
+              <p>• Trợ lý ưu tiên kịch bản từ khóa; câu hỏi ngoài kịch bản được AI hỗ trợ và chỉ mang tính tham khảo.</p>
               <p>• Bài kiểm tra cảm xúc không phải kết quả chẩn đoán y khoa.</p>
               <p>• Sản phẩm không thay thế giáo viên tư vấn hoặc chuyên gia tâm lý.</p>
             </CardContent>
