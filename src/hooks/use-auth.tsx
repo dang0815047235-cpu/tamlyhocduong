@@ -81,6 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     role,
+    isAdmin,
+    pendingTeacher,
     loading,
     signOut: async () => {
       await supabase.auth.signOut();
