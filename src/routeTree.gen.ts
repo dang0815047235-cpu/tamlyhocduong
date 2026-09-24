@@ -17,6 +17,7 @@ import { Route as AuthenticatedBaoCaoRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDatLichRouteImport } from './routes/_authenticated/dat-lich'
 import { Route as AuthenticatedKiemTraCamXucRouteImport } from './routes/_authenticated/kiem-tra-cam-xuc'
 import { Route as AuthenticatedTroChuyenRouteImport } from './routes/_authenticated/tro-chuyen'
+import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const AuthenticatedTroChuyenRoute = AuthenticatedTroChuyenRouteImport.update({
   path: '/tro-chuyen',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
+  id: '/api/public/setup-admin',
+  path: '/api/public/setup-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/dat-lich': typeof AuthenticatedDatLichRoute
   '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/dat-lich': typeof AuthenticatedDatLichRoute
   '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/_authenticated/dat-lich': typeof AuthenticatedDatLichRoute
   '/_authenticated/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
   '/_authenticated/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/dat-lich'
     | '/kiem-tra-cam-xuc'
     | '/tro-chuyen'
+    | '/api/public/setup-admin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/dat-lich'
     | '/kiem-tra-cam-xuc'
     | '/tro-chuyen'
+    | '/api/public/setup-admin'
   id:
     | '__root__'
     | '/'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dat-lich'
     | '/_authenticated/kiem-tra-cam-xuc'
     | '/_authenticated/tro-chuyen'
+    | '/api/public/setup-admin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,6 +136,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DangNhapRoute: typeof DangNhapRoute
   ThuVienRoute: typeof ThuVienRoute
+  ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTroChuyenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/setup-admin': {
+      id: '/api/public/setup-admin'
+      path: '/api/public/setup-admin'
+      fullPath: '/api/public/setup-admin'
+      preLoaderRoute: typeof ApiPublicSetupAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -209,6 +229,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DangNhapRoute: DangNhapRoute,
   ThuVienRoute: ThuVienRoute,
+  ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
