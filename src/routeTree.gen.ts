@@ -15,7 +15,9 @@ import { Route as DangNhapRouteImport } from './routes/dang-nhap'
 import { Route as ThuVienRouteImport } from './routes/thu-vien'
 import { Route as AuthenticatedBaoCaoRouteImport } from './routes/_authenticated/bao-cao'
 import { Route as AuthenticatedDatLichRouteImport } from './routes/_authenticated/dat-lich'
+import { Route as AuthenticatedGiaoVienRouteImport } from './routes/_authenticated/giao-vien'
 import { Route as AuthenticatedKiemTraCamXucRouteImport } from './routes/_authenticated/kiem-tra-cam-xuc'
+import { Route as AuthenticatedQuanTriRouteImport } from './routes/_authenticated/quan-tri'
 import { Route as AuthenticatedTroChuyenRouteImport } from './routes/_authenticated/tro-chuyen'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,12 +49,22 @@ const AuthenticatedDatLichRoute = AuthenticatedDatLichRouteImport.update({
   path: '/dat-lich',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGiaoVienRoute = AuthenticatedGiaoVienRouteImport.update({
+  id: '/giao-vien',
+  path: '/giao-vien',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedKiemTraCamXucRoute =
   AuthenticatedKiemTraCamXucRouteImport.update({
     id: '/kiem-tra-cam-xuc',
     path: '/kiem-tra-cam-xuc',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedQuanTriRoute = AuthenticatedQuanTriRouteImport.update({
+  id: '/quan-tri',
+  path: '/quan-tri',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTroChuyenRoute = AuthenticatedTroChuyenRouteImport.update({
   id: '/tro-chuyen',
   path: '/tro-chuyen',
@@ -65,7 +77,9 @@ export interface FileRoutesByFullPath {
   '/thu-vien': typeof ThuVienRoute
   '/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/dat-lich': typeof AuthenticatedDatLichRoute
+  '/giao-vien': typeof AuthenticatedGiaoVienRoute
   '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/quan-tri': typeof AuthenticatedQuanTriRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRoutesByTo {
@@ -74,7 +88,9 @@ export interface FileRoutesByTo {
   '/thu-vien': typeof ThuVienRoute
   '/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/dat-lich': typeof AuthenticatedDatLichRoute
+  '/giao-vien': typeof AuthenticatedGiaoVienRoute
   '/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/quan-tri': typeof AuthenticatedQuanTriRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRoutesById {
@@ -85,7 +101,9 @@ export interface FileRoutesById {
   '/thu-vien': typeof ThuVienRoute
   '/_authenticated/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/_authenticated/dat-lich': typeof AuthenticatedDatLichRoute
+  '/_authenticated/giao-vien': typeof AuthenticatedGiaoVienRoute
   '/_authenticated/kiem-tra-cam-xuc': typeof AuthenticatedKiemTraCamXucRoute
+  '/_authenticated/quan-tri': typeof AuthenticatedQuanTriRoute
   '/_authenticated/tro-chuyen': typeof AuthenticatedTroChuyenRoute
 }
 export interface FileRouteTypes {
@@ -96,7 +114,9 @@ export interface FileRouteTypes {
     | '/thu-vien'
     | '/bao-cao'
     | '/dat-lich'
+    | '/giao-vien'
     | '/kiem-tra-cam-xuc'
+    | '/quan-tri'
     | '/tro-chuyen'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -105,7 +125,9 @@ export interface FileRouteTypes {
     | '/thu-vien'
     | '/bao-cao'
     | '/dat-lich'
+    | '/giao-vien'
     | '/kiem-tra-cam-xuc'
+    | '/quan-tri'
     | '/tro-chuyen'
   id:
     | '__root__'
@@ -115,7 +137,9 @@ export interface FileRouteTypes {
     | '/thu-vien'
     | '/_authenticated/bao-cao'
     | '/_authenticated/dat-lich'
+    | '/_authenticated/giao-vien'
     | '/_authenticated/kiem-tra-cam-xuc'
+    | '/_authenticated/quan-tri'
     | '/_authenticated/tro-chuyen'
   fileRoutesById: FileRoutesById
 }
@@ -170,11 +194,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDatLichRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/giao-vien': {
+      id: '/_authenticated/giao-vien'
+      path: '/giao-vien'
+      fullPath: '/giao-vien'
+      preLoaderRoute: typeof AuthenticatedGiaoVienRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/kiem-tra-cam-xuc': {
       id: '/_authenticated/kiem-tra-cam-xuc'
       path: '/kiem-tra-cam-xuc'
       fullPath: '/kiem-tra-cam-xuc'
       preLoaderRoute: typeof AuthenticatedKiemTraCamXucRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/quan-tri': {
+      id: '/_authenticated/quan-tri'
+      path: '/quan-tri'
+      fullPath: '/quan-tri'
+      preLoaderRoute: typeof AuthenticatedQuanTriRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tro-chuyen': {
@@ -190,14 +228,18 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBaoCaoRoute: typeof AuthenticatedBaoCaoRoute
   AuthenticatedDatLichRoute: typeof AuthenticatedDatLichRoute
+  AuthenticatedGiaoVienRoute: typeof AuthenticatedGiaoVienRoute
   AuthenticatedKiemTraCamXucRoute: typeof AuthenticatedKiemTraCamXucRoute
+  AuthenticatedQuanTriRoute: typeof AuthenticatedQuanTriRoute
   AuthenticatedTroChuyenRoute: typeof AuthenticatedTroChuyenRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBaoCaoRoute: AuthenticatedBaoCaoRoute,
   AuthenticatedDatLichRoute: AuthenticatedDatLichRoute,
+  AuthenticatedGiaoVienRoute: AuthenticatedGiaoVienRoute,
   AuthenticatedKiemTraCamXucRoute: AuthenticatedKiemTraCamXucRoute,
+  AuthenticatedQuanTriRoute: AuthenticatedQuanTriRoute,
   AuthenticatedTroChuyenRoute: AuthenticatedTroChuyenRoute,
 }
 
