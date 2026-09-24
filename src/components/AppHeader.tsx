@@ -14,11 +14,15 @@ const studentLinks = [
 ] as const;
 
 export function AppHeader() {
-  const { user, profile, role, signOut } = useAuth();
+  const { user, profile, role, isAdmin, pendingTeacher, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  const links = role === "teacher" ? [{ to: "/giao-vien", label: "Bảng điều khiển" } as const, ...studentLinks] : studentLinks;
+  const links = [
+    ...(isAdmin ? [{ to: "/quan-tri", label: "Quản trị" } as const] : []),
+    ...(role === "teacher" ? [{ to: "/giao-vien", label: "Giáo viên" } as const] : []),
+    ...studentLinks,
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -76,6 +80,12 @@ export function AppHeader() {
           </button>
         </div>
       </div>
+
+      {pendingTeacher && (
+        <div className="bg-secondary px-4 py-2 text-center text-xs text-secondary-foreground">
+          Tài khoản giáo viên của bạn đang chờ quản trị viên phê duyệt.
+        </div>
+      )}
 
       {open && (
         <div className="border-t border-border bg-card px-4 py-3 lg:hidden">
