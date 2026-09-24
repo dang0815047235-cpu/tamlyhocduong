@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { answerMessage, CHAT_RULES } from "@/lib/chatbot-rules";
+import { useServerFn } from "@tanstack/react-start";
+import { askCounselorAI } from "@/lib/ai-chat.functions";
 
 export const Route = createFileRoute("/_authenticated/tro-chuyen")({
   head: () => ({
@@ -54,29 +56,61 @@ function ChatPage() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = (text: string) => {
+  const askAI = useServerFn(askCounselorAI);
+  const [thinking, setThinking] = useState(false);
+
+  const send = async (text: string) => {
     const clean = text.trim();
-    if (!clean) return;
+    if (!clean || thinking) return;
     const answer = answerMessage(clean);
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length, from: "me", text: clean },
-      {
-        id: prev.length + 1,
-        from: "bot",
-        text: answer.reply,
-        emergency: answer.isEmergency,
-        ...(answer.links ? { links: answer.links } : {}),
-      },
-    ]);
     setInput("");
     inputRef.current?.focus();
+
+    if (answer.group !== "Không khớp") {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length, from: "me", text: clean },
+        {
+          id: prev.length + 1,
+          from: "bot",
+          text: answer.reply,
+          emergency: answer.isEmergency,
+          ...(answer.links ? { links: answer.links } : {}),
+        },
+      ]);
+      return;
+    }
+
+    // No keyword matched: ask Gemini AI
+    const history = messages.slice(-10).map((m) => ({
+      role: m.from === "me" ? ("user" as const) : ("assistant" as const),
+      content: m.text,
+    }));
+    setMessages((prev) => [...prev, { id: prev.length, from: "me", text: clean }]);
+    setThinking(true);
+    try {
+      const res = await askAI({ data: { message: clean, history } });
+      setMessages((prev) => [
+        ...prev,
+        res.ok
+          ? { id: prev.length, from: "bot", text: res.text + "\n\n(Trả lời bởi trợ lý AI - chỉ mang tính tham khảo)" }
+          : { id: prev.length, from: "bot", text: answer.reply, ...(answer.links ? { links: answer.links } : {}) },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length, from: "bot", text: answer.reply, ...(answer.links ? { links: answer.links } : {}) },
+      ]);
+    } finally {
+      setThinking(false);
+      inputRef.current?.focus();
+    }
   };
 
   return (
     <PageShell
       title="Trò chuyện cùng trợ lý"
-      description="Trợ lý trả lời theo kịch bản từ khóa đã được thầy cô chuẩn bị trước, không tự tạo câu trả lời."
+      description="Trợ lý ưu tiên trả lời theo kịch bản đã được thầy cô chuẩn bị; câu hỏi ngoài kịch bản được trợ lý AI Gemini hỗ trợ."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
         <Card className="flex h-[32rem] flex-col overflow-hidden p-0">
@@ -120,6 +154,7 @@ function ChatPage() {
                 )}
               </div>
             ))}
+            {thinking && <p className="pl-10 text-sm text-muted-foreground animate-pulse">Trợ lý đang suy nghĩ...</p>}
             <div ref={endRef} />
           </div>
 
@@ -128,7 +163,7 @@ function ChatPage() {
               {suggestions.map((s) => (
                 <button
                   key={s}
-                  onClick={() => send(s)}
+                  onClick={() => void send(s)}
                   className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 >
                   {s}
@@ -139,7 +174,7 @@ function ChatPage() {
               className="flex gap-2"
               onSubmit={(e) => {
                 e.preventDefault();
-                send(input);
+                void send(input);
               }}
             >
               <Input
@@ -149,7 +184,7 @@ function ChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Nhập điều em muốn chia sẻ..."
               />
-              <Button type="submit" size="icon" aria-label="Gửi">
+              <Button type="submit" size="icon" aria-label="Gửi" disabled={thinking}>
                 <Send className="size-4" />
               </Button>
             </form>
