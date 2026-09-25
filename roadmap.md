@@ -8,3 +8,7 @@
 - [x] Giáo viên đăng ký phải được admin duyệt
 - [x] Bài kiểm tra cảm xúc 20 câu, phân tích theo nhóm
 - [x] Thêm 10 bài viết vào thư viện (tổng 16)
+- [ ] Làm lời đáp AI ấm áp, có tính chữa lành và biết liên hệ câu hỏi lạ với tâm lý liên quan
+- [ ] Chuyển AI sang API Xkiro với khóa được lưu kín
+- [ ] Danh sách đặt lịch lấy liên tục từ giáo viên đã được quản trị viên phê duyệt
+- [ ] Đổi cách xưng hô từ “em” sang “bạn” trong trải nghiệm tư vấn
