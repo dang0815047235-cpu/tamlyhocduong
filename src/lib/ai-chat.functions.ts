@@ -7,8 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const Input = z.object({
   message: z.string().min(1).max(1000),
   history: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(3000) }))
-    .max(100),
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
 });
 
 const SYSTEM = `Bạn là người bạn đồng hành ảo của cộng đồng Trường THPT Phạm Văn Đồng. Người trò chuyện có thể là học sinh hoặc giáo viên; tuyệt đối không mặc định họ là học sinh.

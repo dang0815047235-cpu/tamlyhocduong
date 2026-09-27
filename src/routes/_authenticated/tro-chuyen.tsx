@@ -66,7 +66,7 @@ function ChatPage() {
     setInput("");
     inputRef.current?.focus();
 
-    if (answer.group !== "Không khớp") {
+    if (answer.isEmergency) {
       setMessages((prev) => [
         ...prev,
         { id: prev.length, from: "me", text: clean },
