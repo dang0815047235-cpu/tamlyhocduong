@@ -41,7 +41,7 @@ const supports = [
   {
     icon: ClipboardList,
     title: "Kiểm tra cảm xúc ngắn",
-    desc: "20 câu hỏi giúp em tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
+    desc: "20 câu hỏi giúp bạn tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
     to: "/kiem-tra-cam-xuc" as const,
   },
   {
@@ -53,7 +53,7 @@ const supports = [
   {
     icon: ShieldAlert,
     title: "Báo cáo sự việc",
-    desc: "Gửi thông tin về một sự việc cần hỗ trợ. Em có thể chọn gửi ẩn danh.",
+    desc: "Gửi thông tin về một sự việc cần hỗ trợ. Bạn có thể chọn gửi ẩn danh.",
     to: "/bao-cao" as const,
   },
   {
@@ -78,10 +78,10 @@ function Home() {
               Trường THPT Phạm Văn Đồng
             </span>
             <h1 className="mt-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-              Em không phải đi qua chuyện khó một mình
+              Bạn không phải đi qua chuyện khó một mình
             </h1>
             <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
-              Trợ lý ảo hỗ trợ tư vấn tâm lý học đường giúp em tìm hiểu kiến thức về sức khỏe tinh thần, trò
+              Trợ lý ảo hỗ trợ tư vấn tâm lý học đường giúp bạn tìm hiểu kiến thức về sức khỏe tinh thần, trò
               chuyện theo kịch bản, tự kiểm tra cảm xúc và kết nối với thầy cô tư vấn của trường.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -102,7 +102,7 @@ function Home() {
                     <Link to="/dang-nhap">Đăng nhập để bắt đầu</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline">
-                    <Link to="/thu-vien">Xem thư viện bài viết</Link>
+                    <Link to="/thu-vien">Xbạn thư viện bài viết</Link>
                   </Button>
                 </>
               )}
@@ -112,15 +112,15 @@ function Home() {
           <Card className="border-destructive/30 bg-destructive/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-destructive">
-                <Phone className="size-5" /> Khi em cần giúp đỡ ngay
+                <Phone className="size-5" /> Khi bạn cần giúp đỡ ngay
               </CardTitle>
               <CardDescription className="text-foreground/80">
-                Nếu em đang thấy không an toàn, bị đe dọa hoặc có ý nghĩ làm hại bản thân, hãy tìm người lớn
+                Nếu bạn đang thấy không an toàn, bị đe dọa hoặc có ý nghĩ làm hại bản thân, hãy tìm người lớn
                 ngay lúc này.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <p>• Nói ngay với bố mẹ, thầy cô hoặc người lớn ở gần em nhất.</p>
+              <p>• Nói ngay với bố mẹ, thầy cô hoặc người lớn ở gần bạn nhất.</p>
               <p>• Tổng đài quốc gia bảo vệ trẻ em: <strong>111</strong> (miễn phí, 24/7).</p>
               <p>• Trường hợp nguy hiểm tức thời: gọi <strong>113</strong>.</p>
             </CardContent>
@@ -129,7 +129,7 @@ function Home() {
 
         <section className="mx-auto max-w-6xl px-4 pb-12">
           <h2 className="text-xl font-bold sm:text-2xl">Các hình thức hỗ trợ tâm lý học đường</h2>
-          <p className="mt-2 text-muted-foreground">Chọn hình thức phù hợp nhất với điều em đang gặp phải.</p>
+          <p className="mt-2 text-muted-foreground">Chọn hình thức phù hợp nhất với điều bạn đang gặp phải.</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {supports.map((s) => (
               <Card key={s.title} className="transition-shadow hover:shadow-md">

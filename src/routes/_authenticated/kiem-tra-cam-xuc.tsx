@@ -36,7 +36,7 @@ function QuizPage() {
 
   const submit = async () => {
     if (answered < QUIZ_QUESTIONS.length) {
-      toast.error("Em hãy trả lời hết tất cả câu hỏi nhé.");
+      toast.error("Bạn hãy trả lời hết tất cả câu hỏi nhé.");
       return;
     }
     const values = answers.map((a) => a ?? 0);
@@ -50,7 +50,7 @@ function QuizPage() {
         .from("checkins")
         .insert({ user_id: user.id, score: total, level: evaluated.level });
       setSaving(false);
-      if (error) toast.error("Không lưu được kết quả, nhưng em vẫn xem được lời khuyên bên dưới.");
+      if (error) toast.error("Không lưu được kết quả, nhưng bạn vẫn xbạn được lời khuyên bên dưới.");
     }
   };
 
@@ -63,14 +63,14 @@ function QuizPage() {
   return (
     <PageShell
       title="Bài kiểm tra cảm xúc ngắn"
-      description="Hãy chọn phương án đúng nhất với em trong hai tuần gần đây. Bài gồm 20 câu, mất khoảng 5 phút."
+      description="Hãy chọn phương án đúng nhất với bạn trong hai tuần gần đây. Bài gồm 20 câu, mất khoảng 5 phút."
     >
       <Card className="mb-6 border-accent bg-accent/30">
         <CardContent className="flex gap-3 pt-6 text-sm">
           <Info className="mt-0.5 size-5 shrink-0 text-accent-foreground" />
           <p>
-            <strong>Lưu ý:</strong> Đây không phải kết quả chẩn đoán y khoa. Bài kiểm tra chỉ giúp em tự nhìn
-            lại cảm xúc của mình. Nếu em thấy lo lắng, hãy trao đổi với thầy cô tư vấn hoặc người lớn tin cậy.
+            <strong>Lưu ý:</strong> Đây không phải kết quả chẩn đoán y khoa. Bài kiểm tra chỉ giúp bạn tự nhìn
+            lại cảm xúc của mình. Nếu bạn thấy lo lắng, hãy trao đổi với thầy cô tư vấn hoặc người lớn tin cậy.
           </p>
         </CardContent>
       </Card>
@@ -110,7 +110,7 @@ function QuizPage() {
           ))}
 
           <Button size="lg" onClick={submit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Xem kết quả"}
+            {saving ? "Đang lưu..." : "Xbạn kết quả"}
           </Button>
         </div>
       ) : (
@@ -125,7 +125,7 @@ function QuizPage() {
         >
           <CardHeader>
             <CardDescription>
-              Điểm của em: {score}/{MAX_SCORE}
+              Điểm của bạn: {score}/{MAX_SCORE}
             </CardDescription>
             <CardTitle className="text-xl">
               {result.level} — {result.headline}

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItbạn } from "@/components/ui/radio-group";
 
 export const Route = createFileRoute("/dang-nhap")({
   head: () => ({
@@ -60,7 +60,7 @@ function AuthPage() {
         error.message.includes("Invalid login")
           ? "Email hoặc mật khẩu chưa đúng."
           : error.message.includes("confirm")
-            ? "Em cần mở email và bấm vào liên kết xác nhận trước khi đăng nhập."
+            ? "Bạn cần mở email và bấm vào liên kết xác nhận trước khi đăng nhập."
             : error.message,
       );
       return;
@@ -87,14 +87,14 @@ function AuthPage() {
     if (error) {
       toast.error(
         error.message.includes("already registered")
-          ? "Email này đã có tài khoản. Em hãy đăng nhập nhé."
+          ? "Email này đã có tài khoản. Bạn hãy đăng nhập nhé."
           : error.message,
       );
       return;
     }
     if (!data.session) {
       setSentEmail(true);
-      toast.success("Đã gửi email xác nhận. Em hãy mở hộp thư và bấm vào liên kết.");
+      toast.success("Đã gửi email xác nhận. Bạn hãy mở hộp thư và bấm vào liên kết.");
     } else {
       toast.success("Tạo tài khoản thành công!");
     }
@@ -114,7 +114,7 @@ function AuthPage() {
 
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Tài khoản của em</CardTitle>
+          <CardTitle>Tài khoản của bạn</CardTitle>
           <CardDescription>
             Đăng nhập để trò chuyện, đặt lịch tư vấn và theo dõi báo cáo đã gửi.
           </CardDescription>
@@ -122,10 +122,10 @@ function AuthPage() {
         <CardContent>
           {sentEmail ? (
             <div className="space-y-3 text-sm">
-              <p className="font-medium">Hãy kiểm tra hộp thư của em.</p>
+              <p className="font-medium">Hãy kiểm tra hộp thư của bạn.</p>
               <p className="text-muted-foreground">
                 Chúng tôi đã gửi một liên kết xác nhận tới <strong>{signupEmail}</strong>. Sau khi bấm vào liên
-                kết đó, em quay lại đây và đăng nhập.
+                kết đó, bạn quay lại đây và đăng nhập.
               </p>
               <Button variant="outline" onClick={() => setSentEmail(false)}>
                 Quay lại
@@ -174,17 +174,17 @@ function AuthPage() {
                     <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Em là</Label>
+                    <Label>Bạn là</Label>
                     <RadioGroup
                       value={signupRole}
                       onValueChange={(v) => setSignupRole(v as "student" | "teacher")}
                       className="flex gap-4"
                     >
                       <label className="flex items-center gap-2 text-sm">
-                        <RadioGroupItem value="student" /> Học sinh
+                        <RadioGroupItbạn value="student" /> Học sinh
                       </label>
                       <label className="flex items-center gap-2 text-sm">
-                        <RadioGroupItem value="teacher" /> Giáo viên
+                        <RadioGroupItbạn value="teacher" /> Giáo viên
                       </label>
                     </RadioGroup>
                   </div>
