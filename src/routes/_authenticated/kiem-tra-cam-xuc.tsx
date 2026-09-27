@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/kiem-tra-cam-xuc")({
       { title: "Bài kiểm tra cảm xúc ngắn | Tâm lý học đường THPT Phạm Văn Đồng" },
       {
         name: "description",
-        content: "7 câu hỏi trắc nghiệm giúp học sinh tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
+        content: "20 câu hỏi giúp bạn tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
       },
       { property: "og:title", content: "Bài kiểm tra cảm xúc ngắn" },
       { property: "og:description", content: "Kết quả chỉ mang tính tham khảo, không phải chẩn đoán y khoa." },

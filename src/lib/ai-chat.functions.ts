@@ -41,8 +41,9 @@ export const askCounselorAI = createServerFn({ method: "POST" })
       if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
       return { ok: true as const, text: text.trim() };
     } catch (e) {
-      const status = (e as { statusCode?: number }).statusCode;
-      console.error("AI chat error", status);
+      const failure = e as { statusCode?: number; cause?: { statusCode?: number }; errors?: Array<{ statusCode?: number }> };
+      const status = failure.statusCode ?? failure.cause?.statusCode ?? failure.errors?.find((item) => item.statusCode)?.statusCode;
+      console.error("AI chat error", status, e instanceof Error ? e.name : "unknown");
       return {
         ok: false as const,
         error:

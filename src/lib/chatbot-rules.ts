@@ -35,7 +35,7 @@ Bạn hãy làm ngay một trong các việc sau:
 • Gọi Tổng đài quốc gia bảo vệ trẻ em 111 (miễn phí, hoạt động 24/7).
 • Nếu có nguy hiểm tức thời, gọi 113 hoặc nhờ người lớn gọi giúp.
 
-Mình chỉ là trợ lý theo kịch bản, mình không thể thay thế người lớn. Bạn không phải đối mặt với chuyện này một mình.`;
+Mình chỉ là trợ lý ảo, không thể thay thế sự hỗ trợ trực tiếp. Bạn không phải đối mặt với chuyện này một mình.`;
 
 export const FALLBACK_REPLY =
   "Mình chưa có thông tin chắc chắn cho câu hỏi này. Bạn có thể xem thư viện bài viết hoặc liên hệ giáo viên tư vấn của trường nhé.";
@@ -89,7 +89,7 @@ Nếu căng thẳng kéo dài nhiều ngày, bạn nên đặt lịch gặp th�
       "không ai chơi",
       "tẩy chay",
     ],
-    reply: `Mâu thuẫn với bạn bè là chuyện rất thường gặp ở tuổi mình. Bạn thử nhé:
+    reply: `Mâu thuẫn với bạn bè có thể khiến mình thấy tổn thương. Bạn thử nhé:
 • Chờ đến khi cả hai bình tĩnh rồi mới nói chuyện.
 • Dùng câu bắt đầu bằng "Mình cảm thấy..." thay vì "Bạn lúc nào cũng...".
 • Lắng nghe hết câu của bạn trước khi trả lời.
