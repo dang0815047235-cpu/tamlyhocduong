@@ -50,8 +50,10 @@ export const askCounselorAI = createServerFn({ method: "POST" })
             ? "Trợ lý AI đang bận, bạn thử lại sau ít phút nhé."
             : status === 402
               ? "Trợ lý AI tạm hết lượt sử dụng."
-              : status === 401 || status === 403
-                ? "Trợ lý AI chưa thể kết nối với Xkiro. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
+              : status === 403
+                ? "Xkiro cần gói trả phí hoặc số dư đã nạp để dùng mẫu AI này. Mình chưa thể trả lời bằng AI lúc này; bạn có thể gặp giáo viên tư vấn nhé."
+                : status === 401
+                  ? "Trợ lý AI chưa thể kết nối với Xkiro. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
                 : "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé.",
       };
     }

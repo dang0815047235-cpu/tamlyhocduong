@@ -16,10 +16,10 @@ export const Route = createFileRoute("/_authenticated/tro-chuyen")({
       {
         name: "description",
         content:
-          "Chatbot theo kịch bản từ khóa hỗ trợ học sinh về học tập, bạn bè, an toàn học đường và đặt lịch tư vấn.",
+          "Trò chuyện với trợ lý ảo về học tập, công việc, cảm xúc, các mối quan hệ và an toàn học đường.",
       },
       { property: "og:title", content: "Trò chuyện cùng trợ lý tâm lý học đường" },
-      { property: "og:description", content: "Trợ lý trả lời theo kịch bản đã được thầy cô chuẩn bị trước." },
+      { property: "og:description", content: "Một nơi nhẹ nhàng để chia sẻ và tìm hướng hỗ trợ phù hợp." },
     ],
   }),
   component: ChatPage,
