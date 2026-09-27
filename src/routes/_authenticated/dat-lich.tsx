@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CalendarHeart } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { APPOINTMENT_STATUS, APPOINTMENT_TOPICS, COUNSELORS, SLOTS } from "@/lib/constants";
+import { APPOINTMENT_STATUS, APPOINTMENT_TOPICS, SLOTS } from "@/lib/constants";
 
 export const Route = createFileRoute("/_authenticated/dat-lich")({
   head: () => ({
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/dat-lich")({
       { title: "Đặt lịch tư vấn tâm lý | THPT Phạm Văn Đồng" },
       {
         name: "description",
-        content: "Học sinh chọn ngày, khung giờ, giáo viên và chủ đề để đặt lịch gặp phòng tư vấn tâm lý học đường.",
+        content: "Chọn ngày, khung giờ, giáo viên và chủ đề để đặt lịch gặp phòng tư vấn tâm lý học đường.",
       },
       { property: "og:title", content: "Đặt lịch tư vấn tâm lý học đường" },
       { property: "og:description", content: "Đặt và theo dõi trạng thái lịch hẹn với thầy cô tư vấn." },
@@ -41,11 +41,27 @@ function AppointmentPage() {
   const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [counselor, setCounselor] = useState(COUNSELORS[0]!);
+  const [counselorId, setCounselorId] = useState("");
   const [date, setDate] = useState(today);
   const [slot, setSlot] = useState(SLOTS[0]!);
   const [topic, setTopic] = useState(APPOINTMENT_TOPICS[0]!);
   const [note, setNote] = useState("");
+
+  const { data: counselors = [], isPending: counselorsLoading, isError: counselorsError, refetch: refreshCounselors } = useQuery({
+    queryKey: ["approved-counselors"],
+    enabled: !!user,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("list_approved_counselors");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    if (!counselors.some((c) => c.id === counselorId)) setCounselorId(counselors[0]?.id ?? "");
+  }, [counselors, counselorId]);
 
   const { data: mine } = useQuery({
     queryKey: ["appointments", "mine", user?.id],
@@ -63,9 +79,14 @@ function AppointmentPage() {
 
   const create = useMutation({
     mutationFn: async () => {
+      const { data: latest, error: lookupError } = await supabase.rpc("list_approved_counselors");
+      if (lookupError) throw lookupError;
+      const selected = latest?.find((c) => c.id === counselorId);
+      if (!selected) throw new Error("Giáo viên này không còn nhận lịch. Bạn vui lòng chọn lại.");
+      if (!user) throw new Error("Bạn cần đăng nhập để đặt lịch.");
       const { error } = await supabase.from("appointments").insert({
-        student_id: user!.id,
-        counselor_name: counselor,
+        student_id: user.id,
+        counselor_name: selected.display_name,
         appointment_date: date,
         appointment_slot: slot,
         topic,
@@ -81,7 +102,7 @@ function AppointmentPage() {
     onError: (e: { code?: string; message: string }) => {
       toast.error(
         e.code === "23505"
-          ? "Khung giờ này đã có bạn khác đặt. Em chọn giờ khác giúp nhé."
+          ? "Khung giờ này đã có bạn khác đặt. Bạn chọn giờ khác giúp nhé."
           : "Không đặt được lịch: " + e.message,
       );
     },
@@ -101,7 +122,7 @@ function AppointmentPage() {
   return (
     <PageShell
       title="Đặt lịch tư vấn"
-      description="Chọn thầy cô, ngày và khung giờ phù hợp. Nội dung buổi gặp được giữ kín giữa em và giáo viên tư vấn."
+      description="Chọn giáo viên, ngày và khung giờ phù hợp. Nội dung buổi gặp được giữ kín giữa bạn và giáo viên tư vấn."
     >
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -121,18 +142,23 @@ function AppointmentPage() {
             >
               <div className="space-y-2">
                 <Label>Giáo viên tư vấn</Label>
-                <Select value={counselor} onValueChange={setCounselor}>
+                <Select value={counselorId} onValueChange={setCounselorId} disabled={!counselors.length}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={counselorsLoading ? "Đang tải giáo viên..." : "Chọn giáo viên"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {COUNSELORS.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
+                    {counselors.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.display_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {counselorsError ? (
+                  <p className="text-sm text-destructive">Chưa tải được danh sách giáo viên. <Button type="button" variant="link" className="h-auto p-0" onClick={() => void refreshCounselors()}>Thử lại</Button></p>
+                ) : !counselorsLoading && counselors.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Hiện chưa có giáo viên được phê duyệt để nhận lịch.</p>
+                ) : null}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -181,17 +207,17 @@ function AppointmentPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="note">Em muốn nói thêm điều gì? (không bắt buộc)</Label>
+                <Label htmlFor="note">Bạn muốn nói thêm điều gì? (không bắt buộc)</Label>
                 <Textarea
                   id="note"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="Ví dụ: em muốn trao đổi về việc ôn thi học kỳ."
+                  placeholder="Ví dụ: mình muốn trao đổi về một chuyện gần đây."
                   rows={3}
                 />
               </div>
 
-              <Button type="submit" disabled={create.isPending}>
+              <Button type="submit" disabled={create.isPending || !counselorId || counselorsError}>
                 {create.isPending ? "Đang gửi..." : "Gửi yêu cầu đặt lịch"}
               </Button>
             </form>
@@ -200,12 +226,12 @@ function AppointmentPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Lịch hẹn của em</CardTitle>
+            <CardTitle>Lịch hẹn của bạn</CardTitle>
             <CardDescription>Theo dõi trạng thái thầy cô cập nhật.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {!mine || mine.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Em chưa có lịch hẹn nào.</p>
+              <p className="text-sm text-muted-foreground">Bạn chưa có lịch hẹn nào.</p>
             ) : (
               mine.map((a) => (
                 <div key={a.id} className="rounded-2xl border border-border p-4">
