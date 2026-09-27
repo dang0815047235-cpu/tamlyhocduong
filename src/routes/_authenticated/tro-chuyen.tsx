@@ -34,10 +34,10 @@ type Msg = {
 };
 
 const suggestions = [
-  "Em thấy rất áp lực chuyện thi cử",
-  "Em vừa cãi nhau với bạn thân",
-  "Có bạn hay dọa nạt em ở trường",
-  "Em muốn đặt lịch gặp thầy cô",
+  "Mình thấy rất áp lực chuyện thi cử",
+  "Mình vừa cãi nhau với bạn thân",
+  "Có người hay dọa nạt mình ở trường",
+  "Mình muốn đặt lịch gặp giáo viên tư vấn",
 ];
 
 function ChatPage() {
@@ -45,7 +45,7 @@ function ChatPage() {
     {
       id: 0,
       from: "bot",
-      text: "Chào em! Mình là trợ lý ảo hỗ trợ tư vấn tâm lý học đường. Em có thể kể cho mình nghe điều em đang gặp phải, hoặc chọn nhanh một gợi ý bên dưới.",
+      text: "Chào bạn! Mình ở đây để lắng nghe. Nếu hôm nay có điều gì khiến bạn nặng lòng, bạn có thể kể theo cách thoải mái nhất nhé.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -81,25 +81,25 @@ function ChatPage() {
       return;
     }
 
-    // No keyword matched: ask Gemini AI
-    const history = messages.slice(-10).map((m) => ({
+    // Keep the full conversation so follow-up questions have their context.
+    const history = messages.map((m) => ({
       role: m.from === "me" ? ("user" as const) : ("assistant" as const),
       content: m.text,
     }));
     setMessages((prev) => [...prev, { id: prev.length, from: "me", text: clean }]);
     setThinking(true);
     try {
-      const res = await askAI({ data: { message: clean, history } });
+       const res = await askAI({ data: { message: clean, history } });
       setMessages((prev) => [
         ...prev,
         res.ok
           ? { id: prev.length, from: "bot", text: res.text + "\n\n(Trả lời bởi trợ lý AI - chỉ mang tính tham khảo)" }
-          : { id: prev.length, from: "bot", text: answer.reply, ...(answer.links ? { links: answer.links } : {}) },
+          : { id: prev.length, from: "bot", text: res.error },
       ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: prev.length, from: "bot", text: answer.reply, ...(answer.links ? { links: answer.links } : {}) },
+        { id: prev.length, from: "bot", text: "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé." },
       ]);
     } finally {
       setThinking(false);
@@ -110,7 +110,7 @@ function ChatPage() {
   return (
     <PageShell
       title="Trò chuyện cùng trợ lý"
-      description="Trợ lý ưu tiên trả lời theo kịch bản đã được thầy cô chuẩn bị; câu hỏi ngoài kịch bản được trợ lý AI Gemini hỗ trợ."
+      description="Bạn có thể chia sẻ về học tập, công việc, các mối quan hệ hoặc điều đang khiến mình bận lòng."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
         <Card className="flex h-[32rem] flex-col overflow-hidden p-0">
@@ -182,7 +182,7 @@ function ChatPage() {
                 autoFocus
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Nhập điều em muốn chia sẻ..."
+                placeholder="Nhập điều bạn muốn chia sẻ..."
               />
               <Button type="submit" size="icon" aria-label="Gửi" disabled={thinking}>
                 <Send className="size-4" />
@@ -206,7 +206,7 @@ function ChatPage() {
             <CardContent className="space-y-1 pt-6 text-sm">
               <p className="font-semibold text-destructive">Lưu ý an toàn</p>
               <p className="text-muted-foreground">
-                Nếu em đang gặp nguy hiểm hoặc có ý nghĩ làm hại bản thân, hãy nói ngay với người lớn, hoặc gọi
+                Nếu bạn đang gặp nguy hiểm hoặc có ý nghĩ làm hại bản thân, hãy tìm người đáng tin cậy ở gần ngay, hoặc gọi
                 Tổng đài 111.
               </p>
             </CardContent>

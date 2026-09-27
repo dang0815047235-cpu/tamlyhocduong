@@ -1,9 +1,3 @@
-export const COUNSELORS = [
-  "Cô Nguyễn Thị Lan - Tư vấn tâm lý",
-  "Thầy Trần Minh Quang - Tư vấn tâm lý",
-  "Cô Phạm Thu Hà - Giám thị, hỗ trợ học đường",
-];
-
 export const SLOTS = [
   "Tiết 1 (07:15 - 08:00)",
   "Tiết 2 (08:05 - 08:50)",
