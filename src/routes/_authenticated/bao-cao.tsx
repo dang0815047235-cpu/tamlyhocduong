@@ -76,7 +76,7 @@ function ReportPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Đã gửi báo cáo tới thầy cô. Cảm ơn em đã lên tiếng!");
+      toast.success("Đã gửi báo cáo tới thầy cô. Cảm ơn bạn đã lên tiếng!");
       setDescription("");
       setLocation("");
       setOccurredAt("");
@@ -88,7 +88,7 @@ function ReportPage() {
   return (
     <PageShell
       title="Báo cáo sự việc cần hỗ trợ"
-      description="Hãy kể lại sự việc để thầy cô nắm được và hỗ trợ kịp thời. Em có thể chọn gửi ẩn danh."
+      description="Hãy kể lại sự việc để thầy cô nắm được và hỗ trợ kịp thời. Bạn có thể chọn gửi ẩn danh."
     >
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -106,7 +106,7 @@ function ReportPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (description.trim().length < 10) {
-                  toast.error("Em hãy mô tả sự việc rõ hơn một chút nhé.");
+                  toast.error("Bạn hãy mô tả sự việc rõ hơn một chút nhé.");
                   return;
                 }
                 submit.mutate();
@@ -156,7 +156,7 @@ function ReportPage() {
                   rows={5}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Em hãy kể lại sự việc đã xảy ra..."
+                  placeholder="Bạn hãy kể lại sự việc đã xảy ra..."
                   required
                 />
               </div>
@@ -183,7 +183,7 @@ function ReportPage() {
                   <Label htmlFor="anon">Gửi ẩn danh</Label>
                   <p className="text-xs text-muted-foreground">
                     Thầy cô sẽ không biết ai gửi. Lưu ý: báo cáo ẩn danh sẽ không hiện trong danh sách theo
-                    dõi của em.
+                    dõi của bạn.
                   </p>
                 </div>
               </div>
@@ -197,12 +197,12 @@ function ReportPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Báo cáo em đã gửi</CardTitle>
-            <CardDescription>Chỉ hiển thị các báo cáo gửi bằng tài khoản của em.</CardDescription>
+            <CardTitle>Báo cáo bạn đã gửi</CardTitle>
+            <CardDescription>Chỉ hiển thị các báo cáo gửi bằng tài khoản của bạn.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {!mine || mine.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Em chưa gửi báo cáo nào.</p>
+              <p className="text-sm text-muted-foreground">Bạn chưa gửi báo cáo nào.</p>
             ) : (
               mine.map((r) => (
                 <div key={r.id} className="rounded-2xl border border-border p-4">

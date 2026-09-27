@@ -227,6 +227,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_approved_counselors: {
+        Args: never
+        Returns: {
+          display_name: string
+          id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "student" | "teacher" | "admin"
