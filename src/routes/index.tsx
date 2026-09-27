@@ -102,7 +102,7 @@ function Home() {
                     <Link to="/dang-nhap">Đăng nhập để bắt đầu</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline">
-                    <Link to="/thu-vien">Xbạn thư viện bài viết</Link>
+                    <Link to="/thu-vien">Xem thư viện bài viết</Link>
                   </Button>
                 </>
               )}

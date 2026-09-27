@@ -50,7 +50,7 @@ function QuizPage() {
         .from("checkins")
         .insert({ user_id: user.id, score: total, level: evaluated.level });
       setSaving(false);
-      if (error) toast.error("Không lưu được kết quả, nhưng bạn vẫn xbạn được lời khuyên bên dưới.");
+      if (error) toast.error("Không lưu được kết quả, nhưng bạn vẫn xem được lời khuyên bên dưới.");
     }
   };
 
@@ -110,7 +110,7 @@ function QuizPage() {
           ))}
 
           <Button size="lg" onClick={submit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Xbạn kết quả"}
+            {saving ? "Đang lưu..." : "Xem kết quả"}
           </Button>
         </div>
       ) : (

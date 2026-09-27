@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
   Select,
   SelectContent,
-  SelectItbạn,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -120,7 +120,7 @@ function ReportPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {INCIDENT_TYPES.map((t) => (
-                      <SelectItbạn key={t} value={t}>
+                      <SelectItem key={t} value={t}>
                         {t}
                       </SelectItem>
                     ))}
@@ -169,7 +169,7 @@ function ReportPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(SEVERITIES).map(([k, v]) => (
-                      <SelectItbạn key={k} value={k}>
+                      <SelectItem key={k} value={k}>
                         {v.label}
                       </SelectItem>
                     ))}

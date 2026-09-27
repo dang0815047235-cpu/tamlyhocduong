@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItbạn } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export const Route = createFileRoute("/dang-nhap")({
   head: () => ({
@@ -181,10 +181,10 @@ function AuthPage() {
                       className="flex gap-4"
                     >
                       <label className="flex items-center gap-2 text-sm">
-                        <RadioGroupItbạn value="student" /> Học sinh
+                        <RadioGroupItem value="student" /> Học sinh
                       </label>
                       <label className="flex items-center gap-2 text-sm">
-                        <RadioGroupItbạn value="teacher" /> Giáo viên
+                        <RadioGroupItem value="teacher" /> Giáo viên
                       </label>
                     </RadioGroup>
                   </div>
