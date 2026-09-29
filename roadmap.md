@@ -12,3 +12,6 @@
 - [x] Chuyển AI sang API Xkiro với khóa được lưu kín
 - [x] Danh sách đặt lịch lấy liên tục từ giáo viên đã được quản trị viên phê duyệt
 - [x] Đổi cách xưng hô từ “em” sang “bạn” trong trải nghiệm tư vấn
+- [ ] Chuyển trò chuyện sang Gemini bằng khóa đã lưu an toàn và kiểm tra phản hồi
+- [ ] Tách hai bộ 20 câu hỏi học sinh/giáo viên theo loại tài khoản đăng ký
+- [ ] Thêm mục tài khoản trong thanh điều hướng để xem thông tin, lịch hẹn và lịch sử cảm xúc
