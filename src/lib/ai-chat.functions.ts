@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -19,21 +19,17 @@ const SYSTEM = `Bạn là người bạn đồng hành ảo của cộng đồng
 
 export const askCounselorAI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }) => {
-    const key = process.env["XKIRO_API_KEY"];
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
-    const gateway = createOpenAICompatible({
-      name: "xkiro",
-      baseURL: "https://api.xkiro.com/v1",
-      headers: { Authorization: `Bearer ${key}` },
-    });
+    const google = createGoogleGenerativeAI({ apiKey: key });
 
     let providerStatus: number | undefined;
     try {
       const result = streamText({
-        model: gateway("google/gemini-3.8-flash"),
+        model: google("gemini-2.5-flash"),
         system: SYSTEM,
         messages: [...data.history, { role: "user", content: data.message }],
         maxRetries: 0,
@@ -56,9 +52,9 @@ export const askCounselorAI = createServerFn({ method: "POST" })
             : status === 402
               ? "Trợ lý AI tạm hết lượt sử dụng."
               : status === 403
-                ? "Xkiro chưa cho phép dùng mẫu AI này với tài khoản hiện tại. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
+                 ? "Gemini chưa cho phép dùng trợ lý với tài khoản hiện tại. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
                 : status === 401
-                  ? "Trợ lý AI chưa thể kết nối với Xkiro. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
+                   ? "Trợ lý AI chưa thể kết nối với Gemini. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
                 : "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé.",
       };
     }

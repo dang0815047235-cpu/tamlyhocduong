@@ -9,6 +9,8 @@ type AuthValue = {
   session: Session | null;
   profile: Profile | null;
   role: "student" | "teacher" | null;
+  accountType: "student" | "teacher" | null;
+  teacherStatus: string | null;
   isAdmin: boolean;
   pendingTeacher: boolean;
   loading: boolean;
@@ -20,6 +22,8 @@ const AuthContext = createContext<AuthValue>({
   session: null,
   profile: null,
   role: null,
+  accountType: null,
+  teacherStatus: null,
   isAdmin: false,
   pendingTeacher: false,
   loading: true,
@@ -30,6 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<"student" | "teacher" | null>(null);
+  const [accountType, setAccountType] = useState<"student" | "teacher" | null>(null);
+  const [teacherStatus, setTeacherStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingTeacher, setPendingTeacher] = useState(false);
@@ -50,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAdmin(roles.includes("admin"));
       setPendingTeacher(!roles.includes("teacher") && req?.status === "pending");
       setRole(roles.includes("teacher") ? "teacher" : "student");
+      setAccountType(roles.includes("teacher") || req ? "teacher" : "student");
+      setTeacherStatus(req?.status ?? null);
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
@@ -59,6 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setRole(null);
+        setAccountType(null);
+        setTeacherStatus(null);
+        setIsAdmin(false);
+        setPendingTeacher(false);
       }
       setLoading(false);
     });
@@ -81,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     role,
+    accountType,
+    teacherStatus,
     isAdmin,
     pendingTeacher,
     loading,
