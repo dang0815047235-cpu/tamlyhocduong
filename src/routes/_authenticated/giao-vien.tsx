@@ -23,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/giao-vien")({
     meta: [
       { title: "Bảng điều khiển giáo viên | Tâm lý học đường THPT Phạm Văn Đồng" },
       { name: "description", content: "Thống kê lịch hẹn, hộp thư báo cáo sự việc và quản lý thư viện bài viết." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Bảng điều khiển giáo viên tư vấn" },
       { property: "og:description", content: "Khu vực dành cho giáo viên tư vấn tâm lý học đường." },
     ],

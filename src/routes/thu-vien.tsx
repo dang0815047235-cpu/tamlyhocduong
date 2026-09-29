@@ -23,6 +23,8 @@ export const Route = createFileRoute("/thu-vien")({
         content:
           "Bài viết ngắn về giảm căng thẳng trước kỳ thi, quản lý thời gian, kiểm soát cảm xúc, giao tiếp và phòng chống bắt nạt học đường.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Thư viện kỹ năng và sức khỏe tinh thần" },
       {
         property: "og:description",

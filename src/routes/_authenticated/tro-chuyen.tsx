@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/tro-chuyen")({
         content:
           "Trò chuyện với trợ lý ảo về học tập, công việc, cảm xúc, các mối quan hệ và an toàn học đường.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Trò chuyện cùng trợ lý tâm lý học đường" },
       { property: "og:description", content: "Một nơi nhẹ nhàng để chia sẻ và tìm hướng hỗ trợ phù hợp." },
     ],

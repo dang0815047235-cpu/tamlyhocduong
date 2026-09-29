@@ -19,12 +19,14 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Nơi học sinh THPT Phạm Văn Đồng trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn, gửi báo cáo sự việc và đọc bài viết về sức khỏe tinh thần.",
+          "Nơi cộng đồng THPT Phạm Văn Đồng trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn, gửi báo cáo sự việc và đọc bài viết về sức khỏe tinh thần.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Trợ lý ảo tư vấn tâm lý học đường | THPT Phạm Văn Đồng" },
       {
         property: "og:description",
-        content: "Các hình thức hỗ trợ tâm lý học đường dành cho học sinh: trò chuyện, kiểm tra cảm xúc, đặt lịch, báo cáo, thư viện.",
+        content: "Các hình thức hỗ trợ tâm lý học đường: trò chuyện, kiểm tra cảm xúc, đặt lịch, báo cáo, thư viện.",
       },
     ],
   }),
@@ -35,7 +37,7 @@ const supports = [
   {
     icon: MessageCircleHeart,
     title: "Trò chuyện cùng trợ lý",
-    desc: "Đặt câu hỏi về học tập, bạn bè hay an toàn và nhận gợi ý theo kịch bản đã được thầy cô duyệt trước.",
+    desc: "Đặt câu hỏi về học tập, bạn bè hay an toàn và nhận gợi ý dịu dàng từ trợ lý ảo.",
     to: "/tro-chuyen" as const,
   },
   {
@@ -82,7 +84,7 @@ function Home() {
             </h1>
             <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
               Trợ lý ảo hỗ trợ tư vấn tâm lý học đường giúp bạn tìm hiểu kiến thức về sức khỏe tinh thần, trò
-              chuyện theo kịch bản, tự kiểm tra cảm xúc và kết nối với thầy cô tư vấn của trường.
+              chuyện cùng trợ lý ảo, tự kiểm tra cảm xúc và kết nối với thầy cô tư vấn của trường.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               {user ? (

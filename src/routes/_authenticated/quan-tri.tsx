@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/quan-tri")({
     meta: [
       { title: "Quản trị - Duyệt tài khoản giáo viên | THPT Phạm Văn Đồng" },
       { name: "description", content: "Quản trị viên phê duyệt tài khoản giáo viên tư vấn tâm lý học đường." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Quản trị hệ thống tư vấn tâm lý học đường" },
       { property: "og:description", content: "Phê duyệt và quản lý tài khoản giáo viên." },
     ],
