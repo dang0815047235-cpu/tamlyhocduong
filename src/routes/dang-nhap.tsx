@@ -19,6 +19,8 @@ export const Route = createFileRoute("/dang-nhap")({
         name: "description",
         content: "Đăng nhập hoặc tạo tài khoản học sinh, giáo viên để sử dụng trợ lý tư vấn tâm lý học đường.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Đăng nhập | Trợ lý tâm lý học đường" },
       { property: "og:description", content: "Tài khoản dành cho học sinh và giáo viên Trường THPT Phạm Văn Đồng." },
     ],

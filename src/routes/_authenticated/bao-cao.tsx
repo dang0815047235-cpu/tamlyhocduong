@@ -30,6 +30,8 @@ export const Route = createFileRoute("/_authenticated/bao-cao")({
         name: "description",
         content: "Biểu mẫu gửi báo cáo sự việc cần hỗ trợ tới thầy cô, có tùy chọn gửi ẩn danh.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Báo cáo sự việc cần hỗ trợ" },
       { property: "og:description", content: "Học sinh có thể gửi báo cáo bằng tài khoản hoặc ẩn danh." },
     ],

@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/kiem-tra-cam-xuc")({
         name: "description",
         content: "20 câu hỏi giúp bạn tự nhìn lại cảm xúc gần đây và nhận lời khuyên phù hợp.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Bài kiểm tra cảm xúc ngắn" },
       { property: "og:description", content: "Kết quả chỉ mang tính tham khảo, không phải chẩn đoán y khoa." },
     ],

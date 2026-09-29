@@ -29,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/dat-lich")({
         name: "description",
         content: "Chọn ngày, khung giờ, giáo viên và chủ đề để đặt lịch gặp phòng tư vấn tâm lý học đường.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Đặt lịch tư vấn tâm lý học đường" },
       { property: "og:description", content: "Đặt và theo dõi trạng thái lịch hẹn với thầy cô tư vấn." },
     ],
