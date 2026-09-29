@@ -30,19 +30,23 @@ export const askCounselorAI = createServerFn({ method: "POST" })
       headers: { Authorization: `Bearer ${key}` },
     });
 
+    let providerStatus: number | undefined;
     try {
       const result = streamText({
         model: gateway("google/gemini-3.8-flash"),
         system: SYSTEM,
         messages: [...data.history, { role: "user", content: data.message }],
         maxRetries: 0,
+        onError: ({ error }) => {
+          providerStatus = (error as { statusCode?: number }).statusCode;
+        },
       });
       const text = await result.text;
       if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
       return { ok: true as const, text: text.trim() };
     } catch (e) {
       const failure = e as { statusCode?: number; cause?: { statusCode?: number }; errors?: Array<{ statusCode?: number }> };
-      const status = failure.statusCode ?? failure.cause?.statusCode ?? failure.errors?.find((item) => item.statusCode)?.statusCode;
+      const status = providerStatus ?? failure.statusCode ?? failure.cause?.statusCode ?? failure.errors?.find((item) => item.statusCode)?.statusCode;
       console.error("AI chat error", status, e instanceof Error ? e.name : "unknown");
       return {
         ok: false as const,
@@ -52,7 +56,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
             : status === 402
               ? "Trợ lý AI tạm hết lượt sử dụng."
               : status === 403
-                ? "Xkiro cần gói trả phí hoặc số dư đã nạp để dùng mẫu AI này. Mình chưa thể trả lời bằng AI lúc này; bạn có thể gặp giáo viên tư vấn nhé."
+                ? "Xkiro chưa cho phép dùng mẫu AI này với tài khoản hiện tại. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
                 : status === 401
                   ? "Trợ lý AI chưa thể kết nối với Xkiro. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
                 : "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé.",

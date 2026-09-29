@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep Xkiro requests in authenticated server functions; counseling conversations and the API key must never enter the browser bundle.
+- Resolve booking choices via the approved-teacher database function on each booking and refresh the list periodically, so revoked teachers cannot accept new requests.
