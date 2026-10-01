@@ -22,6 +22,7 @@ export function AppHeader() {
     ...(isAdmin ? [{ to: "/quan-tri", label: "Quản trị" } as const] : []),
     ...(role === "teacher" ? [{ to: "/giao-vien", label: "Giáo viên" } as const] : []),
     ...studentLinks,
+    ...(user ? [{ to: "/tai-khoan", label: pendingTeacher || role === "teacher" ? "Tài khoản giáo viên" : "Tài khoản học sinh" } as const] : []),
   ];
 
   const handleSignOut = async () => {
@@ -71,13 +72,15 @@ export function AppHeader() {
               <Link to="/dang-nhap">Đăng nhập</Link>
             </Button>
           )}
-          <button
-            className="rounded-xl p-2 lg:hidden"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label="Mở menu"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          </Button>
         </div>
       </div>
 
