@@ -29,7 +29,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     let providerStatus: number | undefined;
     try {
       const result = streamText({
-        model: google("gemini-2.5-flash"),
+        model: google("gemini-3.8-flash"),
         system: SYSTEM,
         messages: [...data.history, { role: "user", content: data.message }],
         maxRetries: 0,
