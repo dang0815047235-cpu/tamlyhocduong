@@ -6,6 +6,7 @@ import { CalendarDays, HeartPulse, UserRound } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +30,29 @@ export const Route = createFileRoute("/_authenticated/tai-khoan")({
 function AccountPage() {
   const { user, profile, accountType, teacherStatus, isAdmin } = useAuth();
   const isTeacher = accountType === "teacher";
+  const queryClient = useQueryClient();
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+
+  const saveName = async () => {
+    const trimmed = newName.trim();
+    if (!user || !trimmed) {
+      toast.error("Tên không được để trống.");
+      return;
+    }
+    setSavingName(true);
+    const { error } = await supabase.from("profiles").update({ display_name: trimmed }).eq("id", user.id);
+    setSavingName(false);
+    if (error) {
+      toast.error("Chưa đổi được tên. Bạn thử lại nhé.");
+      return;
+    }
+    toast.success("Đã đổi tên tài khoản.");
+    setEditingName(false);
+    await queryClient.invalidateQueries();
+    window.location.reload();
+  };
   const { data: checkins = [], isError: checkinsError } = useQuery({
     queryKey: ["checkins", "mine", user?.id],
     enabled: !!user,
