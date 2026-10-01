@@ -35,6 +35,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
         maxRetries: 0,
         onError: ({ error }) => {
           providerStatus = (error as { statusCode?: number }).statusCode;
+          console.error("Gemini response error", providerStatus, error instanceof Error ? error.message : String(error));
         },
       });
       const text = await result.text;
