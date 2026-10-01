@@ -11,3 +11,4 @@
 
 - Keep Gemini requests in authenticated server functions; counseling conversations and the API key must never enter the browser bundle.
 - Resolve booking choices via the approved-teacher database function on each booking and refresh the list periodically, so revoked teachers cannot accept new requests.
+- Keep account activity on the authenticated account route and query each person's check-ins and appointments with their signed-in session, so private history stays scoped to its owner.
