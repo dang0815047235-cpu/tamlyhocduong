@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { evaluateQuiz, MAX_SCORE, QUIZ_OPTIONS, QUIZ_QUESTIONS } from "@/lib/quiz";
+import { evaluateQuiz, MAX_SCORE, QUIZ_OPTIONS, QUIZ_QUESTIONS, TEACHER_QUIZ_QUESTIONS } from "@/lib/quiz";
 
 export const Route = createFileRoute("/_authenticated/kiem-tra-cam-xuc")({
   head: () => ({
@@ -28,7 +28,8 @@ export const Route = createFileRoute("/_authenticated/kiem-tra-cam-xuc")({
 });
 
 function QuizPage() {
-  const { user } = useAuth();
+  const { user, accountType } = useAuth();
+  const questions = accountType === "teacher" ? TEACHER_QUIZ_QUESTIONS : QUIZ_QUESTIONS;
   const [answers, setAnswers] = useState<(number | null)[]>(QUIZ_QUESTIONS.map(() => null));
   const [score, setScore] = useState<number | null>(null);
   const [result, setResult] = useState<ReturnType<typeof evaluateQuiz> | null>(null);
@@ -37,13 +38,13 @@ function QuizPage() {
   const answered = answers.filter((a) => a !== null).length;
 
   const submit = async () => {
-    if (answered < QUIZ_QUESTIONS.length) {
+    if (answered < questions.length) {
       toast.error("Bạn hãy trả lời hết tất cả câu hỏi nhé.");
       return;
     }
     const values = answers.map((a) => a ?? 0);
     const total = values.reduce((s, a) => s + a, 0);
-    const evaluated = evaluateQuiz(values);
+    const evaluated = evaluateQuiz(values, accountType === "teacher" ? "teacher" : "student");
     setScore(total);
     setResult(evaluated);
     if (user) {
@@ -57,14 +58,14 @@ function QuizPage() {
   };
 
   const reset = () => {
-    setAnswers(QUIZ_QUESTIONS.map(() => null));
+    setAnswers(questions.map(() => null));
     setScore(null);
     setResult(null);
   };
 
   return (
     <PageShell
-      title="Bài kiểm tra cảm xúc ngắn"
+      title={accountType === "teacher" ? "Kiểm tra cảm xúc dành cho giáo viên" : "Kiểm tra cảm xúc dành cho học sinh"}
       description="Hãy chọn phương án đúng nhất với bạn trong hai tuần gần đây. Bài gồm 20 câu, mất khoảng 5 phút."
     >
       <Card className="mb-6 border-accent bg-accent/30">
@@ -72,7 +73,7 @@ function QuizPage() {
           <Info className="mt-0.5 size-5 shrink-0 text-accent-foreground" />
           <p>
             <strong>Lưu ý:</strong> Đây không phải kết quả chẩn đoán y khoa. Bài kiểm tra chỉ giúp bạn tự nhìn
-            lại cảm xúc của mình. Nếu bạn thấy lo lắng, hãy trao đổi với thầy cô tư vấn hoặc người lớn tin cậy.
+               lại cảm xúc của mình. Nếu bạn thấy lo lắng, hãy trao đổi với người tin cậy hoặc chuyên gia.
           </p>
         </CardContent>
       </Card>
@@ -80,13 +81,13 @@ function QuizPage() {
       {result === null ? (
         <div className="space-y-4">
           <div>
-            <Progress value={(answered / QUIZ_QUESTIONS.length) * 100} />
+            <Progress value={(answered / questions.length) * 100} />
             <p className="mt-2 text-sm text-muted-foreground">
-              Đã trả lời {answered}/{QUIZ_QUESTIONS.length} câu
+               Đã trả lời {answered}/{questions.length} câu
             </p>
           </div>
 
-          {QUIZ_QUESTIONS.map((q, qi) => (
+           {questions.map((q, qi) => (
             <Card key={q.text}>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
@@ -155,9 +156,9 @@ function QuizPage() {
               Kết quả này chỉ mang tính tham khảo và không thay thế chẩn đoán của chuyên gia y tế.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link to="/dat-lich">Đặt lịch gặp thầy cô</Link>
-              </Button>
+               {accountType !== "teacher" && <Button asChild>
+                 <Link to="/dat-lich">Đặt lịch gặp thầy cô</Link>
+               </Button>}
               <Button asChild variant="secondary">
                 <Link to="/thu-vien">Đọc bài viết gợi ý</Link>
               </Button>

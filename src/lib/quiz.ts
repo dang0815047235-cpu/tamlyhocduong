@@ -47,7 +47,46 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   { text: "Bạn có ý nghĩ muốn làm hại bản thân hoặc không muốn sống nữa.", category: "mood", safety: true },
 ];
 
-export const MAX_SCORE = QUIZ_QUESTIONS.length * 2;
+export const TEACHER_QUIZ_QUESTIONS: QuizQuestion[] = [
+  { text: "Bạn cảm thấy khối lượng công việc giảng dạy quá sức.", category: "study" },
+  { text: "Bạn lo lắng về tiến độ bài giảng hoặc chất lượng giờ dạy.", category: "study" },
+  { text: "Bạn khó tập trung khi chuẩn bị bài hoặc chấm bài.", category: "study" },
+  { text: "Bạn thấy áp lực từ kỳ vọng của phụ huynh, nhà trường hoặc bản thân.", category: "study" },
+  { text: "Bạn thường bồn chồn khi nghĩ đến ngày làm việc tiếp theo.", category: "anxiety" },
+  { text: "Bạn hay nghĩ đi nghĩ lại về một tình huống khó trong lớp.", category: "anxiety" },
+  { text: "Bạn thấy cơ thể căng cứng hoặc tim đập nhanh khi làm việc.", category: "anxiety" },
+  { text: "Bạn lo sợ mắc sai sót khi trao đổi với học sinh hoặc phụ huynh.", category: "anxiety" },
+  { text: "Bạn thấy kiệt sức về cảm xúc sau giờ dạy.", category: "mood" },
+  { text: "Bạn ít còn hứng thú với những hoạt động từng yêu thích.", category: "mood" },
+  { text: "Bạn cảm thấy công sức của mình không được ghi nhận.", category: "mood" },
+  { text: "Bạn dễ cáu gắt với đồng nghiệp hoặc người thân.", category: "mood" },
+  { text: "Bạn khó ngủ hoặc hay thức giấc vì nghĩ về công việc.", category: "sleep" },
+  { text: "Bạn thức dậy vẫn mệt và thiếu năng lượng để bắt đầu ngày mới.", category: "sleep" },
+  { text: "Bạn bỏ bữa hoặc ăn uống thất thường vì bận rộn.", category: "sleep" },
+  { text: "Bạn khó dành thời gian nghỉ ngơi sau giờ làm.", category: "sleep" },
+  { text: "Bạn cảm thấy cô đơn khi cần chia sẻ khó khăn trong công việc.", category: "social" },
+  { text: "Bạn có mâu thuẫn chưa giải quyết được với đồng nghiệp hoặc phụ huynh.", category: "social" },
+  { text: "Bạn thấy khó cân bằng thời gian cho người thân và công việc.", category: "social" },
+  { text: "Bạn có ý nghĩ muốn làm hại bản thân hoặc không muốn sống nữa.", category: "mood", safety: true },
+];
+
+export const TEACHER_CATEGORY_LABELS: Record<QuizCategory, string> = {
+  study: "Áp lực công việc",
+  anxiety: "Lo âu",
+  mood: "Tâm trạng và kiệt sức",
+  sleep: "Giấc ngủ và năng lượng",
+  social: "Quan hệ và cân bằng cuộc sống",
+};
+
+export const TEACHER_CATEGORY_TIPS: Record<QuizCategory, string> = {
+  study: "Chọn một việc ưu tiên trong ngày, trao đổi với tổ chuyên môn khi khối lượng công việc quá tải.",
+  anxiety: "Tạm dừng vài phút để thở chậm, ghi lại điều bạn có thể kiểm soát và tìm đồng nghiệp tin cậy để trao đổi.",
+  mood: "Cho phép mình nghỉ ngơi và tìm hỗ trợ từ người tin cậy hoặc chuyên gia nếu cảm giác kiệt sức kéo dài.",
+  sleep: "Thử khép lại công việc vào một giờ cố định, hạn chế màn hình trước giờ ngủ và duy trì thời gian nghỉ.",
+  social: "Đặt ranh giới công việc phù hợp và dành một khoảng thời gian nhỏ để kết nối với người thân.",
+};
+
+export const MAX_SCORE = 40;
 
 export type QuizResult = {
   level: string;
@@ -58,12 +97,15 @@ export type QuizResult = {
   safetyFlag: boolean;
 };
 
-export function evaluateQuiz(answers: number[]): QuizResult {
+export function evaluateQuiz(answers: number[], accountType: "student" | "teacher" = "student"): QuizResult {
+  const questions = accountType === "teacher" ? TEACHER_QUIZ_QUESTIONS : QUIZ_QUESTIONS;
+  const labels = accountType === "teacher" ? TEACHER_CATEGORY_LABELS : CATEGORY_LABELS;
+  const tips = accountType === "teacher" ? TEACHER_CATEGORY_TIPS : CATEGORY_TIPS;
   const score = answers.reduce((s, a) => s + a, 0);
-  const safetyFlag = QUIZ_QUESTIONS.some((q, i) => q.safety && (answers[i] ?? 0) > 0);
+  const safetyFlag = questions.some((q, i) => q.safety && (answers[i] ?? 0) > 0);
 
   const sums = new Map<QuizCategory, { got: number; max: number }>();
-  QUIZ_QUESTIONS.forEach((q, i) => {
+  questions.forEach((q, i) => {
     const cur = sums.get(q.category) ?? { got: 0, max: 0 };
     cur.got += answers[i] ?? 0;
     cur.max += 2;
@@ -71,11 +113,11 @@ export function evaluateQuiz(answers: number[]): QuizResult {
   });
   const categories = Array.from(sums, ([key, v]) => ({
     key,
-    label: CATEGORY_LABELS[key],
+    label: labels[key],
     percent: Math.round((v.got / v.max) * 100),
   })).sort((a, b) => b.percent - a.percent);
 
-  const focus = categories.filter((c) => c.percent >= 50).map((c) => CATEGORY_TIPS[c.key]);
+  const focus = categories.filter((c) => c.percent >= 50).map((c) => tips[c.key]);
 
   let base: Omit<QuizResult, "categories" | "safetyFlag">;
   if (score <= 10 && !safetyFlag) {
@@ -95,7 +137,7 @@ export function evaluateQuiz(answers: number[]): QuizResult {
       headline: "Bạn đang có một số dấu hiệu căng thẳng cần quan tâm.",
       advice: [
         "Chia sẻ với một người bạn hoặc người lớn mà bạn tin tưởng.",
-        "Nếu tình trạng kéo dài hơn hai tuần, hãy đặt lịch gặp thầy cô tư vấn.",
+        accountType === "teacher" ? "Nếu tình trạng kéo dài hơn hai tuần, hãy tìm người hỗ trợ hoặc chuyên gia tâm lý." : "Nếu tình trạng kéo dài hơn hai tuần, hãy đặt lịch gặp thầy cô tư vấn.",
       ],
     };
   } else {
@@ -104,15 +146,15 @@ export function evaluateQuiz(answers: number[]): QuizResult {
       tone: "alert",
       headline: "Bạn đang gặp khá nhiều khó khăn về cảm xúc.",
       advice: [
-        "Hãy đặt lịch gặp giáo viên tư vấn tâm lý của trường trong tuần này.",
-        "Nói với bố mẹ hoặc người lớn mà bạn tin tưởng về cảm giác hiện tại.",
+        accountType === "teacher" ? "Hãy tìm người tin cậy hoặc chuyên gia tâm lý để trao đổi sớm." : "Hãy đặt lịch gặp giáo viên tư vấn tâm lý của trường trong tuần này.",
+        accountType === "teacher" ? "Chia sẻ với người thân hoặc đồng nghiệp bạn tin tưởng về cảm giác hiện tại." : "Nói với bố mẹ hoặc người lớn mà bạn tin tưởng về cảm giác hiện tại.",
       ],
     };
   }
 
   if (safetyFlag) {
     base.advice.unshift(
-      "Bạn đã chia sẻ rằng có lúc muốn làm hại bản thân. Hãy nói ngay với bố mẹ, thầy cô hoặc gọi Tổng đài 111 (miễn phí, 24/7). Bạn không phải một mình.",
+      accountType === "teacher" ? "Bạn đã chia sẻ rằng có lúc muốn làm hại bản thân. Hãy tìm người ở gần ngay, nói với người tin cậy và gọi 115 hoặc 113 nếu đang nguy hiểm. Bạn không phải một mình." : "Bạn đã chia sẻ rằng có lúc muốn làm hại bản thân. Hãy nói ngay với bố mẹ, thầy cô hoặc gọi Tổng đài 111 (miễn phí, 24/7). Bạn không phải một mình.",
     );
   }
 
