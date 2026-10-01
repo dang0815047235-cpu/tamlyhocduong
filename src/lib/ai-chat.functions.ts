@@ -32,10 +32,9 @@ export const askCounselorAI = createServerFn({ method: "POST" })
         model: google("gemini-3.8-flash"),
         system: SYSTEM,
         messages: [...data.history, { role: "user", content: data.message }],
-        maxRetries: 0,
+        maxRetries: 2,
         onError: ({ error }) => {
           providerStatus = (error as { statusCode?: number }).statusCode;
-          console.error("Gemini response error", providerStatus, error instanceof Error ? error.message : String(error));
         },
       });
       const text = await result.text;
