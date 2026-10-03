@@ -83,7 +83,21 @@ function AccountPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2"><UserRound className="size-5 text-primary" /><h2 className="text-lg font-semibold">Thông tin tài khoản</h2></div>
           <div className="border-t border-border py-4 text-sm space-y-3">
-            <div><span className="text-muted-foreground">Họ tên</span><p className="font-medium">{profile?.display_name ?? "Đang tải..."}</p></div>
+            <div>
+              <span className="text-muted-foreground">Họ tên</span>
+              {editingName ? (
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="max-w-xs" autoFocus />
+                  <Button size="sm" onClick={saveName} disabled={savingName}>{savingName ? "Đang lưu..." : "Lưu"}</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingName(false)}>Hủy</Button>
+                </div>
+              ) : (
+                <p className="font-medium">
+                  {profile?.display_name ?? "Đang tải..."}{" "}
+                  <button type="button" className="text-sm font-normal text-primary underline-offset-4 hover:underline" onClick={() => { setNewName(profile?.display_name ?? ""); setEditingName(true); }}>Đổi tên</button>
+                </p>
+              )}
+            </div>
             <div><span className="text-muted-foreground">Email</span><p className="break-all font-medium">{user?.email}</p></div>
             <div><span className="text-muted-foreground">Loại tài khoản</span><p className="font-medium">{isTeacher ? "Giáo viên" : "Học sinh"}{isAdmin ? " · Quản trị viên" : ""}</p></div>
             {!isTeacher && profile?.class_name && <div><span className="text-muted-foreground">Lớp</span><p className="font-medium">{profile.class_name}</p></div>}
