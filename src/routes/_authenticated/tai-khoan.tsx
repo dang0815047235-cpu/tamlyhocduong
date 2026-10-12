@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CalendarDays, HeartPulse, UserRound } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { AvatarEditor, PasswordChanger } from "@/components/AccountExtras";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
