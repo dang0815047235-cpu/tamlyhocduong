@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as DangNhapRouteImport } from './routes/dang-nhap'
+import { Route as DatLaiMatKhauRouteImport } from './routes/dat-lai-mat-khau'
 import { Route as ThuVienRouteImport } from './routes/thu-vien'
 import { Route as AuthenticatedBaoCaoRouteImport } from './routes/_authenticated/bao-cao'
 import { Route as AuthenticatedDatLichRouteImport } from './routes/_authenticated/dat-lich'
@@ -33,6 +34,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const DangNhapRoute = DangNhapRouteImport.update({
   id: '/dang-nhap',
   path: '/dang-nhap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatLaiMatKhauRoute = DatLaiMatKhauRouteImport.update({
+  id: '/dat-lai-mat-khau',
+  path: '/dat-lai-mat-khau',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThuVienRoute = ThuVienRouteImport.update({
@@ -80,6 +86,7 @@ const AuthenticatedTroChuyenRoute = AuthenticatedTroChuyenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/thu-vien': typeof ThuVienRoute
   '/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/dat-lich': typeof AuthenticatedDatLichRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/thu-vien': typeof ThuVienRoute
   '/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/dat-lich': typeof AuthenticatedDatLichRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/thu-vien': typeof ThuVienRoute
   '/_authenticated/bao-cao': typeof AuthenticatedBaoCaoRoute
   '/_authenticated/dat-lich': typeof AuthenticatedDatLichRoute
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/thu-vien'
     | '/bao-cao'
     | '/dat-lich'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/thu-vien'
     | '/bao-cao'
     | '/dat-lich'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/thu-vien'
     | '/_authenticated/bao-cao'
     | '/_authenticated/dat-lich'
@@ -159,6 +171,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DangNhapRoute: typeof DangNhapRoute
+  DatLaiMatKhauRoute: typeof DatLaiMatKhauRoute
   ThuVienRoute: typeof ThuVienRoute
 }
 
@@ -183,6 +196,13 @@ declare module '@tanstack/react-router' {
       path: '/dang-nhap'
       fullPath: '/dang-nhap'
       preLoaderRoute: typeof DangNhapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dat-lai-mat-khau': {
+      id: '/dat-lai-mat-khau'
+      path: '/dat-lai-mat-khau'
+      fullPath: '/dat-lai-mat-khau'
+      preLoaderRoute: typeof DatLaiMatKhauRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/thu-vien': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DangNhapRoute: DangNhapRoute,
+  DatLaiMatKhauRoute: DatLaiMatKhauRoute,
   ThuVienRoute: ThuVienRoute,
 }
 export const routeTree = rootRouteImport
