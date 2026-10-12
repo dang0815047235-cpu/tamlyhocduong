@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-type Profile = { id: string; display_name: string; class_name: string | null };
+type Profile = { id: string; display_name: string; class_name: string | null; avatar_url: string | null };
 
 type AuthValue = {
   user: User | null;
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loadDetails = async (userId: string) => {
       const [{ data: p }, { data: r }, { data: req }] = await Promise.all([
-        supabase.from("profiles").select("id, display_name, class_name").eq("id", userId).maybeSingle(),
+        supabase.from("profiles").select("id, display_name, class_name, avatar_url").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
         supabase.from("teacher_requests").select("status").eq("user_id", userId).maybeSingle(),
       ]);

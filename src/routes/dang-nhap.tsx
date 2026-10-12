@@ -166,6 +166,24 @@ function AuthPage() {
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? "Đang xử lý..." : "Đăng nhập"}
                   </Button>
+                  <button
+                    type="button"
+                    className="w-full text-center text-sm text-primary underline-offset-4 hover:underline"
+                    onClick={async () => {
+                      const email = loginEmail.trim();
+                      if (!email.includes("@") || email.endsWith("@pvd.local")) {
+                        toast.error("Bạn hãy nhập email đã đăng ký vào ô phía trên rồi bấm lại nhé.");
+                        return;
+                      }
+                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
+                      });
+                      if (error) toast.error("Chưa gửi được email. Bạn thử lại sau ít phút nhé.");
+                      else toast.success("Đã gửi liên kết đặt lại mật khẩu tới email của bạn.");
+                    }}
+                  >
+                    Quên mật khẩu?
+                  </button>
                 </form>
               </TabsContent>
 
