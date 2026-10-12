@@ -29,6 +29,13 @@
       "when": 1790473861056,
       "tag": "0003_approved_counselor_directory",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791794159261,
+      "tag": "0004_profile_avatars",
+      "breakpoints": true
     }
   ]
 }
