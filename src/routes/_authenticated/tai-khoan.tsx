@@ -82,6 +82,7 @@ function AccountPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="space-y-4">
           <div className="flex items-center gap-2"><UserRound className="size-5 text-primary" /><h2 className="text-lg font-semibold">Thông tin tài khoản</h2></div>
+          <AvatarEditor />
           <div className="border-t border-border py-4 text-sm space-y-3">
             <div>
               <span className="text-muted-foreground">Họ tên</span>
@@ -104,6 +105,7 @@ function AccountPage() {
             {isTeacher && <div><span className="text-muted-foreground">Trạng thái giáo viên</span><p className="font-medium">{teacherStatus === "approved" ? "Đã phê duyệt" : teacherStatus === "rejected" ? "Chưa được phê duyệt" : "Đang chờ phê duyệt"}</p></div>}
           </div>
           {isTeacher && teacherStatus === "approved" && <Button asChild variant="outline"><Link to="/giao-vien">Xem hộp thư giáo viên</Link></Button>}
+          <PasswordChanger />
         </section>
         <section className="space-y-4">
           <div className="flex items-center gap-2"><HeartPulse className="size-5 text-primary" /><h2 className="text-lg font-semibold">Lịch sử cảm xúc</h2></div>
