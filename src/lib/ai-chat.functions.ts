@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -38,26 +38,26 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     const google = createGoogleGenerativeAI({ apiKey: key });
 
     let providerStatus: number | undefined;
-    try {
-      const result = streamText({
-        // The heavier flash model was hanging for 40s+; the lite model answers in about a second.
-        model: google("gemini-flash-lite-latest"),
+    const messages = [...data.history.slice(-10), { role: "user" as const, content: data.message }];
+    // Gemini 3 models reject thinkingBudget; thinkingLevel "minimal" keeps replies fast.
+    const ask = (modelId: string) =>
+      generateText({
+        model: google(modelId),
         system: SYSTEM,
-        // Only the latest exchanges matter for context; a long history slows every reply.
-        messages: [...data.history.slice(-10), { role: "user", content: data.message }],
-        maxOutputTokens: 500,
+        messages,
+        maxOutputTokens: 600,
         maxRetries: 1,
-        providerOptions: {
-          google: {
-            // Disable the model's hidden "thinking" pass so replies start much sooner.
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        },
-        onError: ({ error }) => {
-          providerStatus = (error as { statusCode?: number }).statusCode;
-        },
+        abortSignal: AbortSignal.timeout(25_000),
+        providerOptions: { google: { thinkingConfig: { thinkingLevel: "minimal" } } },
       });
-      const text = await result.text;
+    try {
+      let text = "";
+      try {
+        text = (await ask("gemini-flash-lite-latest")).text;
+      } catch (first) {
+        console.error("AI primary model failed", (first as { statusCode?: number }).statusCode);
+        text = (await ask("gemini-flash-latest")).text;
+      }
       if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
       return { ok: true as const, text: text.trim() };
     } catch (e) {
