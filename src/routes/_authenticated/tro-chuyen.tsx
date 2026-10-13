@@ -95,9 +95,9 @@ function ChatPage() {
       setMessages((prev) => [
         ...prev,
         res.ok
-          ? { id: prev.length, from: "bot", text: res.text + "\n\n(Trả lời bởi trợ lý AI - chỉ mang tính tham khảo)" }
+          ? { id: prev.length, from: "bot", text: res.text }
           : { id: prev.length, from: "bot", text: res.error },
-      ]);
+        ]);
     } catch {
       setMessages((prev) => [
         ...prev,
