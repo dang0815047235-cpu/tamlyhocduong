@@ -42,8 +42,16 @@ export const askCounselorAI = createServerFn({ method: "POST" })
       const result = streamText({
         model: google("gemini-3.8-flash"),
         system: SYSTEM,
-        messages: [...data.history, { role: "user", content: data.message }],
-        maxRetries: 2,
+        // Only the latest exchanges matter for context; a long history slows every reply.
+        messages: [...data.history.slice(-10), { role: "user", content: data.message }],
+        maxOutputTokens: 500,
+        maxRetries: 1,
+        providerOptions: {
+          google: {
+            // Disable the model's hidden "thinking" pass so replies start much sooner.
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        },
         onError: ({ error }) => {
           providerStatus = (error as { statusCode?: number }).statusCode;
         },
