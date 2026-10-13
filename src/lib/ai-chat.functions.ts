@@ -40,7 +40,8 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     let providerStatus: number | undefined;
     try {
       const result = streamText({
-        model: google("gemini-3.8-flash"),
+        // The heavier flash model was hanging for 40s+; the lite model answers in about a second.
+        model: google("gemini-flash-lite-latest"),
         system: SYSTEM,
         // Only the latest exchanges matter for context; a long history slows every reply.
         messages: [...data.history.slice(-10), { role: "user", content: data.message }],
