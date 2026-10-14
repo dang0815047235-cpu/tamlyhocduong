@@ -88,6 +88,7 @@ function AppointmentPage() {
       if (!user) throw new Error("Bạn cần đăng nhập để đặt lịch.");
       const { error } = await supabase.from("appointments").insert({
         student_id: user.id,
+        counselor_id: selected.id,
         counselor_name: selected.display_name,
         appointment_date: date,
         appointment_slot: slot,

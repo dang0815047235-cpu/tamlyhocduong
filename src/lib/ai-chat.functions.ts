@@ -31,7 +31,7 @@ AN TOÀN: nếu có dấu hiệu tự hại, muốn chết, bị bạo lực, x�
 export const askCounselorAI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => Input.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const key = process.env["GEMINI_API_KEY"];
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
@@ -59,6 +59,10 @@ export const askCounselorAI = createServerFn({ method: "POST" })
         text = (await ask("gemini-flash-latest")).text;
       }
       if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
+      await context.supabase.from("chat_logs").insert([
+        { user_id: context.userId, role: "user", content: data.message },
+        { user_id: context.userId, role: "assistant", content: text.trim() },
+      ]);
       return { ok: true as const, text: text.trim() };
     } catch (e) {
       const failure = e as { statusCode?: number; cause?: { statusCode?: number }; errors?: Array<{ statusCode?: number }> };
