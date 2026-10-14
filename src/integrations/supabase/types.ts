@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           appointment_date: string
           appointment_slot: string
+          counselor_id: string | null
           counselor_name: string
           created_at: string
           id: string
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           appointment_date: string
           appointment_slot: string
+          counselor_id?: string | null
           counselor_name: string
           created_at?: string
           id?: string
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           appointment_date?: string
           appointment_slot?: string
+          counselor_id?: string | null
           counselor_name?: string
           created_at?: string
           id?: string
@@ -83,6 +86,30 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_logs: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       checkins: {
         Row: {
           created_at: string
@@ -104,6 +131,24 @@ export type Database = {
           level?: string
           score?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      job_locks: {
+        Row: {
+          locked_until: string
+          name: string
+          paused_reason: string | null
+        }
+        Insert: {
+          locked_until?: string
+          name: string
+          paused_reason?: string | null
+        }
+        Update: {
+          locked_until?: string
+          name?: string
+          paused_reason?: string | null
         }
         Relationships: []
       }
@@ -215,6 +260,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_reports: {
+        Row: {
+          created_at: string
+          guidance: string
+          id: string
+          sentiment: string
+          stats: Json
+          student_id: string
+          student_name: string
+          summary: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          guidance: string
+          id?: string
+          sentiment: string
+          stats?: Json
+          student_id: string
+          student_name: string
+          summary: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          guidance?: string
+          id?: string
+          sentiment?: string
+          stats?: Json
+          student_id?: string
+          student_name?: string
+          summary?: string
+          week_start?: string
         }
         Relationships: []
       }
