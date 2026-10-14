@@ -21,6 +21,7 @@ import { Route as AuthenticatedKiemTraCamXucRouteImport } from './routes/_authen
 import { Route as AuthenticatedQuanTriRouteImport } from './routes/_authenticated/quan-tri'
 import { Route as AuthenticatedTaiKhoanRouteImport } from './routes/_authenticated/tai-khoan'
 import { Route as AuthenticatedTroChuyenRouteImport } from './routes/_authenticated/tro-chuyen'
+import { Route as ApiPublicWeeklyReportsRouteImport } from './routes/api/public/weekly-reports'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,11 @@ const AuthenticatedTroChuyenRoute = AuthenticatedTroChuyenRouteImport.update({
   path: '/tro-chuyen',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicWeeklyReportsRoute = ApiPublicWeeklyReportsRouteImport.update({
+  id: '/api/public/weekly-reports',
+  path: '/api/public/weekly-reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/quan-tri': typeof AuthenticatedQuanTriRoute
   '/tai-khoan': typeof AuthenticatedTaiKhoanRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/weekly-reports': typeof ApiPublicWeeklyReportsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/quan-tri': typeof AuthenticatedQuanTriRoute
   '/tai-khoan': typeof AuthenticatedTaiKhoanRoute
   '/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/weekly-reports': typeof ApiPublicWeeklyReportsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/quan-tri': typeof AuthenticatedQuanTriRoute
   '/_authenticated/tai-khoan': typeof AuthenticatedTaiKhoanRoute
   '/_authenticated/tro-chuyen': typeof AuthenticatedTroChuyenRoute
+  '/api/public/weekly-reports': typeof ApiPublicWeeklyReportsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/quan-tri'
     | '/tai-khoan'
     | '/tro-chuyen'
+    | '/api/public/weekly-reports'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/quan-tri'
     | '/tai-khoan'
     | '/tro-chuyen'
+    | '/api/public/weekly-reports'
   id:
     | '__root__'
     | '/'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/quan-tri'
     | '/_authenticated/tai-khoan'
     | '/_authenticated/tro-chuyen'
+    | '/api/public/weekly-reports'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   DangNhapRoute: typeof DangNhapRoute
   DatLaiMatKhauRoute: typeof DatLaiMatKhauRoute
   ThuVienRoute: typeof ThuVienRoute
+  ApiPublicWeeklyReportsRoute: typeof ApiPublicWeeklyReportsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTroChuyenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/weekly-reports': {
+      id: '/api/public/weekly-reports'
+      path: '/api/public/weekly-reports'
+      fullPath: '/api/public/weekly-reports'
+      preLoaderRoute: typeof ApiPublicWeeklyReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   DangNhapRoute: DangNhapRoute,
   DatLaiMatKhauRoute: DatLaiMatKhauRoute,
   ThuVienRoute: ThuVienRoute,
+  ApiPublicWeeklyReportsRoute: ApiPublicWeeklyReportsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
