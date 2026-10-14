@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { APPOINTMENT_STATUS, REPORT_STATUS, SEVERITIES } from "@/lib/constants";
+import { WeeklyReports } from "@/components/WeeklyReports";
 
 export const Route = createFileRoute("/_authenticated/giao-vien")({
   head: () => ({
@@ -61,11 +62,13 @@ function TeacherPage() {
           <TabsTrigger value="appointments">Lịch hẹn</TabsTrigger>
           <TabsTrigger value="reports">Hộp thư báo cáo</TabsTrigger>
           <TabsTrigger value="articles">Bài viết</TabsTrigger>
+          <TabsTrigger value="weekly">Báo cáo tuần</TabsTrigger>
         </TabsList>
         <TabsContent value="overview"><Overview /></TabsContent>
         <TabsContent value="appointments"><Appointments /></TabsContent>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="articles"><Articles /></TabsContent>
+        <TabsContent value="weekly"><WeeklyReports /></TabsContent>
       </Tabs>
     </PageShell>
   );
