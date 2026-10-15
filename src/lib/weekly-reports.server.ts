@@ -91,7 +91,55 @@ Viết báo cáo tình hình tâm lý tuần cho giáo viên tư vấn bằng ti
         console.error("weekly report failed", status);
       }
     }
-    return { created, remaining: todo.length > BATCH };
+    const remaining = todo.length > BATCH;
+    if (!remaining) {
+      // Whole week done -> build the overall weekly digest (once per week)
+      const { data: existing } = await db.from("weekly_summaries").select("id").eq("week_start", weekStart).maybeSingle();
+      if (!existing) {
+        const { data: all } = await db.from("weekly_reports").select("student_name, sentiment, summary, stats").eq("week_start", weekStart);
+        const rows = all ?? [];
+        type Totals = { students: number; positive: number; neutral: number; negative: number; chats: number; checkins: number; appointments: number; reports: number };
+        const totals = rows.reduce<Totals>(
+          (acc, r) => {
+            const st = (r.stats ?? {}) as { chats?: number; checkins?: number; appointments?: number; reports?: number };
+            acc.students++;
+            const sent = r.sentiment as "positive" | "neutral" | "negative";
+            if (sent === "positive" || sent === "neutral" || sent === "negative") acc[sent]++;
+            acc.chats += st.chats ?? 0; acc.checkins += st.checkins ?? 0; acc.appointments += st.appointments ?? 0; acc.reports += st.reports ?? 0;
+            return acc;
+          },
+          { students: 0, positive: 0, neutral: 0, negative: 0, chats: 0, checkins: 0, appointments: 0, reports: 0 },
+        );
+        const notable = rows.filter((r) => r.sentiment === "negative").map((r) => ({ name: r.student_name, note: r.summary.slice(0, 200) }));
+        const digestPrompt = `Bạn là giáo viên tư vấn tâm lý học đường. Dưới đây là thống kê tuần (từ ${weekStart}) của toàn trường:
+- Tổng học sinh có báo cáo: ${totals.students} (tích cực: ${totals.positive}, ổn định: ${totals.neutral}, cần quan tâm: ${totals.negative})
+- Hoạt động: ${totals.chats} tin nhắn AI, ${totals.checkins} bài kiểm tra cảm xúc, ${totals.appointments} lịch hẹn, ${totals.reports} báo cáo sự việc
+- Các em cần quan tâm: ${JSON.stringify(notable.slice(0, 15))}
+
+Viết bản báo cáo tổng hợp đầu tuần gửi ban giám hiệu và giáo viên tư vấn bằng tiếng Việt, giọng chuyên nghiệp, ấm áp. Không chẩn đoán bệnh. Trả về JSON đúng dạng:
+{"summary":"5-8 câu tóm tắt tình hình tâm lý chung của học sinh trong tuần, xu hướng nổi bật","recommendations":"4-6 đề xuất hướng xử lý/chăm sóc cụ thể cho tuần tới"}`;
+        try {
+          const { text } = await generateText({
+            model: google("gemini-flash-latest"),
+            prompt: digestPrompt,
+            maxOutputTokens: 1200,
+            maxRetries: 1,
+            abortSignal: AbortSignal.timeout(30_000),
+            providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
+          });
+          const parsed = JSON.parse(text.replace(/```json|```/g, "").trim()) as { summary?: string; recommendations?: string };
+          await db.from("weekly_summaries").insert({
+            week_start: weekStart,
+            summary: parsed.summary ?? "",
+            recommendations: parsed.recommendations ?? "",
+            stats: totals,
+          });
+        } catch (e) {
+          console.error("weekly digest failed", (e as { statusCode?: number }).statusCode);
+        }
+      }
+    }
+    return { created, remaining };
   } finally {
     await db.from("job_locks").update({ locked_until: new Date().toISOString() }).eq("name", LOCK);
   }
