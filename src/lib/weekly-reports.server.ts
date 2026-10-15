@@ -98,15 +98,17 @@ Viết báo cáo tình hình tâm lý tuần cho giáo viên tư vấn bằng ti
       if (!existing) {
         const { data: all } = await db.from("weekly_reports").select("student_name, sentiment, summary, stats").eq("week_start", weekStart);
         const rows = all ?? [];
-        const totals = rows.reduce(
+        type Totals = { students: number; positive: number; neutral: number; negative: number; chats: number; checkins: number; appointments: number; reports: number };
+        const totals = rows.reduce<Totals>(
           (acc, r) => {
             const st = (r.stats ?? {}) as { chats?: number; checkins?: number; appointments?: number; reports?: number };
             acc.students++;
-            acc[r.sentiment as "positive" | "neutral" | "negative"] = (acc[r.sentiment as "positive" | "neutral" | "negative"] ?? 0) + 1;
+            const sent = r.sentiment as "positive" | "neutral" | "negative";
+            if (sent === "positive" || sent === "neutral" || sent === "negative") acc[sent]++;
             acc.chats += st.chats ?? 0; acc.checkins += st.checkins ?? 0; acc.appointments += st.appointments ?? 0; acc.reports += st.reports ?? 0;
             return acc;
           },
-          { students: 0, positive: 0, neutral: 0, negative: 0, chats: 0, checkins: 0, appointments: 0, reports: 0 } as Record<string, number>,
+          { students: 0, positive: 0, neutral: 0, negative: 0, chats: 0, checkins: 0, appointments: 0, reports: 0 },
         );
         const notable = rows.filter((r) => r.sentiment === "negative").map((r) => ({ name: r.student_name, note: r.summary.slice(0, 200) }));
         const digestPrompt = `Bạn là giáo viên tư vấn tâm lý học đường. Dưới đây là thống kê tuần (từ ${weekStart}) của toàn trường:
