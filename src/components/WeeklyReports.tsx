@@ -43,6 +43,7 @@ export function WeeklyReports() {
     onSuccess: (r) => {
       toast[r.paused ? "warning" : "success"](r.paused ?? `Đã tạo ${r.created} báo cáo${r.remaining ? ", bấm lại để tạo tiếp" : ""}.`);
       void qc.invalidateQueries({ queryKey: ["weekly-reports"] });
+      void qc.invalidateQueries({ queryKey: ["weekly-summaries"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -67,6 +68,30 @@ export function WeeklyReports() {
           ))}
         </CardContent>
       </Card>
+      {(() => {
+        const digest = summaries.find((s) => s.week_start === active);
+        if (!digest) return null;
+        const st = digest.stats as { students?: number; positive?: number; neutral?: number; negative?: number; chats?: number; checkins?: number; appointments?: number; reports?: number };
+        return (
+          <Card className="border-primary/40">
+            <CardHeader>
+              <CardTitle>Bản tóm tắt đầu tuần</CardTitle>
+              <CardDescription>
+                {st.students ?? 0} học sinh · {st.positive ?? 0} tích cực · {st.neutral ?? 0} ổn định · {st.negative ?? 0} cần quan tâm
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm whitespace-pre-line">{digest.summary}</p>
+              {digest.recommendations ? (
+                <div className="rounded-xl bg-secondary p-3 text-sm whitespace-pre-line">
+                  <span className="font-medium">Đề xuất cho tuần tới: </span>
+                  {digest.recommendations}
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        );
+      })()}
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">Chưa có báo cáo nào.</p>
       ) : (
