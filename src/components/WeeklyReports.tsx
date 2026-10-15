@@ -26,6 +26,14 @@ export function WeeklyReports() {
       return data ?? [];
     },
   });
+  const { data: summaries = [] } = useQuery({
+    queryKey: ["weekly-summaries"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("weekly_summaries").select("*").order("week_start", { ascending: false }).limit(12);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
   const weeks = Array.from(new Set(data.map((r) => r.week_start)));
   const active = week || weeks[0] || "";
   const rows = data.filter((r) => r.week_start === active).sort((a, b) => (a.sentiment === "negative" ? -1 : b.sentiment === "negative" ? 1 : 0));
