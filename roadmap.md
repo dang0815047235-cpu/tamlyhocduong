@@ -15,3 +15,5 @@
 - [x] Chuyển trò chuyện sang Gemini bằng khóa đã lưu an toàn và kiểm tra phản hồi
 - [x] Tách hai bộ 20 câu hỏi học sinh/giáo viên theo loại tài khoản đăng ký
 - [x] Thêm mục tài khoản trong thanh điều hướng để xem thông tin, lịch hẹn và lịch sử cảm xúc
+- [x] Thông báo lịch hẹn chờ duyệt cho đúng giáo viên được chọn
+- [x] Báo cáo tâm lý hàng tuần tự động (AI tổng hợp)
