@@ -119,14 +119,23 @@ Viết báo cáo tình hình tâm lý tuần cho giáo viên tư vấn bằng ti
 Viết bản báo cáo tổng hợp đầu tuần gửi ban giám hiệu và giáo viên tư vấn bằng tiếng Việt, giọng chuyên nghiệp, ấm áp. Không chẩn đoán bệnh. Trả về JSON đúng dạng:
 {"summary":"5-8 câu tóm tắt tình hình tâm lý chung của học sinh trong tuần, xu hướng nổi bật","recommendations":"4-6 đề xuất hướng xử lý/chăm sóc cụ thể cho tuần tới"}`;
         try {
-          const { text } = await generateText({
-            model: google("gemini-flash-latest"),
-            prompt: digestPrompt,
-            maxOutputTokens: 1200,
-            maxRetries: 1,
-            abortSignal: AbortSignal.timeout(30_000),
-            providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
-          });
+          let text = "";
+          for (const m of ["gemini-flash-lite-latest", "gemini-flash-latest"]) {
+            try {
+              ({ text } = await generateText({
+                model: google(m),
+                prompt: digestPrompt,
+                maxOutputTokens: 1200,
+                maxRetries: 1,
+                abortSignal: AbortSignal.timeout(30_000),
+                providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
+              }));
+              break;
+            } catch (err) {
+              console.error("weekly digest model failed", m, (err as Error).message?.slice(0, 200));
+            }
+          }
+          if (!text) throw new Error("all digest models failed");
           const parsed = JSON.parse(text.replace(/```json|```/g, "").trim()) as { summary?: string; recommendations?: string };
           await db.from("weekly_summaries").insert({
             week_start: weekStart,
