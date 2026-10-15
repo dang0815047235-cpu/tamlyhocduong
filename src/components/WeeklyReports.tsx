@@ -63,8 +63,8 @@ export function WeeklyReports() {
         <p className="text-sm text-muted-foreground">Chưa có báo cáo nào.</p>
       ) : (
         rows.map((r) => {
-          const s = SENT[r.sentiment] ?? SENT.neutral!;
-          const st = r.stats as Record<string, number>;
+          const s = SENT[r.sentiment] ?? SENT["neutral"]!;
+          const st = r.stats as { chats?: number; checkins?: number; appointments?: number; reports?: number };
           return (
             <Card key={r.id}>
               <CardContent className="space-y-2 pt-6">
