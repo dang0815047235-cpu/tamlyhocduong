@@ -160,3 +160,152 @@ export function evaluateQuiz(answers: number[], accountType: "student" | "teache
 
   return { ...base, advice: [...base.advice, ...focus], categories, safetyFlag };
 }
+
+// DASS-21 (Lovibond & Lovibond, 1995) — thang đo chuẩn, miễn phí sử dụng,
+// giữ nguyên nội dung 21 câu gốc theo đúng thứ tự trên bản chính thức.
+export type DassSubscale = "depression" | "anxiety" | "stress";
+
+export const DASS_OPTIONS = [
+  { label: "Không đúng với mình chút nào", value: 0 },
+  { label: "Đúng một phần, hoặc thỉnh thoảng", value: 1 },
+  { label: "Đúng khá nhiều, hoặc trong khoảng thời gian đáng kể", value: 2 },
+  { label: "Hoàn toàn đúng, hoặc phần lớn thời gian", value: 3 },
+];
+
+export const DASS_QUESTIONS: { text: string; subscale: DassSubscale }[] = [
+  { text: "Tôi thấy khó để vứt bỏ những căng thẳng, khó thả lỏng để nghỉ ngơi.", subscale: "stress" },
+  { text: "Tôi nhận thấy miệng mình bị khô.", subscale: "anxiety" },
+  { text: "Tôi dường như không thể cảm nhận được bất kỳ cảm xúc tích cực nào.", subscale: "depression" },
+  { text: "Tôi gặp khó khăn trong việc thở (ví dụ: thở nhanh quá mức, hụt hơi dù không gắng sức).", subscale: "anxiety" },
+  { text: "Tôi thấy khó tạo động lực để bắt tay vào làm những việc cần làm.", subscale: "depression" },
+  { text: "Tôi hay phản ứng thái quá với các tình huống.", subscale: "stress" },
+  { text: "Tôi thấy cơ thể run rẩy (ví dụ: run tay).", subscale: "anxiety" },
+  { text: "Tôi cảm thấy như mình dùng rất nhiều năng lượng thần kinh.", subscale: "stress" },
+  { text: "Tôi lo lắng về những tình huống có thể khiến mình hoảng loạn và lúng túng trước mặt người khác.", subscale: "anxiety" },
+  { text: "Tôi cảm thấy chẳng còn điều gì để mong chờ.", subscale: "depression" },
+  { text: "Tôi thấy mình dễ bực bội, khó chịu.", subscale: "stress" },
+  { text: "Tôi thấy khó thư giãn.", subscale: "stress" },
+  { text: "Tôi thấy rầu rĩ, uể oải.", subscale: "depression" },
+  { text: "Tôi dễ mất kiên nhẫn với bất cứ điều gì cản trở việc mình đang làm.", subscale: "stress" },
+  { text: "Tôi cảm thấy như sắp hoảng loạn.", subscale: "anxiety" },
+  { text: "Tôi không thể cảm thấy hứng thú với bất cứ điều gì.", subscale: "depression" },
+  { text: "Tôi cảm thấy bản thân không có mấy giá trị.", subscale: "depression" },
+  { text: "Tôi thấy mình dễ cáu kỉnh.", subscale: "stress" },
+  { text: "Tôi nhận thấy nhịp tim của mình dù không gắng sức (ví dụ: tim đập nhanh, tim đập hụt một nhịp).", subscale: "anxiety" },
+  { text: "Tôi thấy sợ hãi mà không có lý do rõ ràng.", subscale: "anxiety" },
+  { text: "Tôi cảm thấy cuộc sống thật vô nghĩa.", subscale: "depression" },
+];
+
+export const DASS_SUBSCALE_LABELS: Record<DassSubscale, string> = {
+  depression: "Trầm cảm",
+  anxiety: "Lo âu",
+  stress: "Căng thẳng",
+};
+
+// Ngưỡng điểm chuẩn DASS-21 (điểm mỗi thang = tổng 7 câu × 2).
+// [nhẹ, trung bình, nặng, rất nặng]
+const DASS_CUTOFFS: Record<DassSubscale, [number, number, number, number]> = {
+  depression: [10, 14, 21, 28],
+  anxiety: [8, 10, 15, 20],
+  stress: [15, 19, 26, 34],
+};
+
+export const DASS_SEVERITY_LABELS = ["Bình thường", "Nhẹ", "Trung bình", "Nặng", "Rất nặng"];
+
+export const DASS_MAX_SCORE = 63;
+
+export type DassResult = {
+  level: string;
+  headline: string;
+  advice: string[];
+  tone: "good" | "warn" | "alert";
+  subscales: { key: DassSubscale; label: string; score: number; percent: number; level: string }[];
+  crisis: boolean;
+};
+
+export function evaluateDASS(
+  answers: number[],
+  accountType: "student" | "teacher" = "student",
+): DassResult {
+  const sums: Record<DassSubscale, number> = { depression: 0, anxiety: 0, stress: 0 };
+  DASS_QUESTIONS.forEach((q, i) => {
+    sums[q.subscale] += answers[i] ?? 0;
+  });
+
+  const severity = (key: DassSubscale): number => {
+    const [m1, m2, m3, m4] = DASS_CUTOFFS[key];
+    const s = sums[key] * 2;
+    return s >= m4 ? 4 : s >= m3 ? 3 : s >= m2 ? 2 : s >= m1 ? 1 : 0;
+  };
+
+  const subscales = (Object.keys(sums) as DassSubscale[]).map((key) => ({
+    key,
+    label: DASS_SUBSCALE_LABELS[key],
+    score: sums[key] * 2,
+    percent: Math.min(100, Math.round(((sums[key] * 2) / 42) * 100)),
+    level: DASS_SEVERITY_LABELS[severity(key)],
+  }));
+
+  const top = Math.max(...subscales.map((s) => severity(s.key)));
+  const crisis = severity("depression") >= 3 || top === 4;
+
+  let base: { level: string; headline: string; tone: DassResult["tone"]; advice: string[] };
+  if (top === 0) {
+    base = {
+      level: "Ổn định",
+      tone: "good",
+      headline: "Kết quả cho thấy bạn đang trong trạng thái khá ổn định.",
+      advice: [
+        "Giữ nhịp sống đều đặn: ngủ đủ, vận động nhẹ và dành thời gian cho điều bạn thích.",
+        "Đọc thêm vài bài viết trong thư viện của trường để nạp thêm năng lượng tích cực.",
+      ],
+    };
+  } else if (top === 1 || top === 2) {
+    base = {
+      level: "Cần chú ý",
+      tone: "warn",
+      headline:
+        top === 1
+          ? "Có một vài dấu hiệu nhẹ — đây là lúc tốt để tự chăm sóc mình hơn."
+          : "Có những dấu hiệu rõ rệt hơn; bạn nên dành thêm sự quan tâm cho cảm xúc của mình.",
+      advice: [
+        "Chia sẻ với một người bạn hoặc người lớn tin cậy về những gì bạn đang cảm thấy.",
+        "Mỗi ngày thử một việc nhỏ: đi bộ 10 phút, viết ra điều khiến bạn nặng lòng.",
+        accountType === "teacher"
+          ? "Nếu cảm giác kéo dài hơn hai tuần, hãy trao đổi với người hỗ trợ hoặc chuyên gia tâm lý."
+          : "Nếu tình trạng kéo dài hơn hai tuần, hãy đặt lịch gặp giáo viên tư vấn của trường.",
+      ],
+    };
+  } else {
+    base = {
+      level: "Nên tìm hỗ trợ",
+      tone: "alert",
+      headline: "Kết quả cho thấy bạn đang gặp nhiều khó khăn và cần được hỗ trợ.",
+      advice: [
+        accountType === "teacher"
+          ? "Hãy tìm người tin cậy hoặc chuyên gia tâm lý để trao đổi sớm."
+          : "Hãy đặt lịch gặp giáo viên tư vấn tâm lý của trường trong tuần này.",
+        "Chia sẻ với người thân hoặc người bạn tin tưởng về kết quả này.",
+      ],
+    };
+  }
+
+  const focusTips: Record<DassSubscale, string> = {
+    depression:
+      "Hãy bắt đầu từ việc nhỏ nhất: một cuộc đi bộ ngắn, một bài hát bạn thích — cảm xúc có thể nhẹ đi từng chút.",
+    anxiety: "Tập thở 4-7-8, viết nỗi lo ra giấy và tự hỏi điều đó có chắc chắn xảy ra không.",
+    stress:
+      "Chia nhỏ việc cần làm, cho mình vài phút nghỉ thật sự và trao đổi phần nặng với người tin cậy.",
+  };
+  for (const s of subscales) {
+    if (severity(s.key) >= 2) base.advice.push(focusTips[s.key]);
+  }
+
+  if (crisis) {
+    base.advice.unshift(
+      "Kết quả có những dấu hiệu nặng. Hãy nói ngay với người ở gần bạn hoặc người lớn tin cậy, gọi Tổng đài 111 (miễn phí, 24/7); nếu đang trong tình huống nguy hiểm hãy gọi 113. Bạn không phải một mình.",
+    );
+  }
+
+  return { ...base, subscales, crisis };
+}
