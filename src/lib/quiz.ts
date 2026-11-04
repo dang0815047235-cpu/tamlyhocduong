@@ -243,7 +243,7 @@ export function evaluateDASS(
     label: DASS_SUBSCALE_LABELS[key],
     score: sums[key] * 2,
     percent: Math.min(100, Math.round(((sums[key] * 2) / 42) * 100)),
-    level: DASS_SEVERITY_LABELS[severity(key)],
+    level: DASS_SEVERITY_LABELS[severity(key)] ?? "Bình thường",
   }));
 
   const top = Math.max(...subscales.map((s) => severity(s.key)));

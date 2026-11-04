@@ -162,10 +162,10 @@ function QuizPage() {
           </div>
 
            {questions.map((q, qi) => (
-            <Card key={q.text}>
+            <Card key={q}>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
-                  Câu {qi + 1}. {q.text}
+                  Câu {qi + 1}. {q}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
