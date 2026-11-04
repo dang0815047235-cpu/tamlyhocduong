@@ -74,19 +74,15 @@ function QuizPage() {
       return;
     }
     const values = answers.map((a) => a ?? 0);
-    const total = values.reduce((s, a) => s + a, 0);
     const kind = accountType === "teacher" ? "teacher" : "student";
-    const level =
-      mode === "dass"
-        ? evaluateDASS(values, kind).level
-        : evaluateQuiz(values, kind).level;
-    if (mode === "dass") {
-      setScore(total);
-      setDassResult(evaluateDASS(values, kind));
-    } else {
-      setScore(total);
-      setQuickResult(evaluateQuiz(values, kind));
-    }
+    const dassEval = mode === "dass" ? evaluateDASS(values, kind) : null;
+    const quickEval = mode === "dass" ? null : evaluateQuiz(values, kind);
+    // DASS-21 lưu tổng điểm chuẩn (tổng ba thang đã nhân đôi), bài ngắn giữ tổng thô.
+    const total = dassEval ? dassEval.total : (values.reduce((s, a) => s + a, 0));
+    const level = dassEval ? dassEval.level : (quickEval?.level ?? "");
+    setScore(total);
+    if (dassEval) setDassResult(dassEval);
+    if (quickEval) setQuickResult(quickEval);
     if (user) {
       setSaving(true);
       const { error } = await supabase
