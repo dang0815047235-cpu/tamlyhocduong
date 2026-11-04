@@ -50,9 +50,10 @@ describe("DASS-21", () => {
     expect(dep?.level).toBe("Nặng");
   });
 
-  it("điểm tối đa 63", () => {
+  it("điểm tối đa 126 (tổng ba thang, mỗi thang tối đa 42)", () => {
     const r = evaluateDASS(DASS_QUESTIONS.map(() => 3));
     expect(r.subscales.reduce((s, x) => s + x.score, 0)).toBe(DASS_MAX_SCORE);
+    expect(r.total).toBe(DASS_MAX_SCORE);
     expect(r.level).toBe("Nên tìm hỗ trợ");
   });
 });

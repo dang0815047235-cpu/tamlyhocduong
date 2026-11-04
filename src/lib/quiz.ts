@@ -309,5 +309,6 @@ export function evaluateDASS(
     );
   }
 
-  return { ...base, subscales, crisis };
+  const total = subscales.reduce((s, x) => s + x.score, 0);
+  return { ...base, subscales, crisis, total };
 }
