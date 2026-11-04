@@ -212,7 +212,8 @@ const DASS_CUTOFFS: Record<DassSubscale, [number, number, number, number]> = {
 
 export const DASS_SEVERITY_LABELS = ["Bình thường", "Nhẹ", "Trung bình", "Nặng", "Rất nặng"];
 
-export const DASS_MAX_SCORE = 63;
+// Mỗi thang tối đa 21 × 2 = 42 điểm; tổng ba thang tối đa 126.
+export const DASS_MAX_SCORE = 126;
 
 export type DassResult = {
   level: string;
@@ -221,6 +222,7 @@ export type DassResult = {
   tone: "good" | "warn" | "alert";
   subscales: { key: DassSubscale; label: string; score: number; percent: number; level: string }[];
   crisis: boolean;
+  total: number;
 };
 
 export function evaluateDASS(
@@ -243,7 +245,7 @@ export function evaluateDASS(
     label: DASS_SUBSCALE_LABELS[key],
     score: sums[key] * 2,
     percent: Math.min(100, Math.round(((sums[key] * 2) / 42) * 100)),
-    level: DASS_SEVERITY_LABELS[severity(key)],
+    level: DASS_SEVERITY_LABELS[severity(key)] ?? "Bình thường",
   }));
 
   const top = Math.max(...subscales.map((s) => severity(s.key)));
@@ -307,5 +309,6 @@ export function evaluateDASS(
     );
   }
 
-  return { ...base, subscales, crisis };
+  const total = subscales.reduce((s, x) => s + x.score, 0);
+  return { ...base, subscales, crisis, total };
 }
