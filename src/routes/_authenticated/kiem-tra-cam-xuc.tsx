@@ -76,6 +76,10 @@ function QuizPage() {
     const values = answers.map((a) => a ?? 0);
     const total = values.reduce((s, a) => s + a, 0);
     const kind = accountType === "teacher" ? "teacher" : "student";
+    const level =
+      mode === "dass"
+        ? evaluateDASS(values, kind).level
+        : evaluateQuiz(values, kind).level;
     if (mode === "dass") {
       setScore(total);
       setDassResult(evaluateDASS(values, kind));
@@ -85,15 +89,11 @@ function QuizPage() {
     }
     if (user) {
       setSaving(true);
-      const evaluated = mode === "dass" ? dassResult : quickResult;
-      const level =
-        mode === "dass" ? evaluateDASS(values, kind).level : evaluateQuiz(values, kind).level;
       const { error } = await supabase
         .from("checkins")
         .insert({ user_id: user.id, score: total, level });
       setSaving(false);
       if (error) toast.error("Không lưu được kết quả, nhưng bạn vẫn xem được lời khuyên bên dưới.");
-      void evaluated;
     }
   };
 
