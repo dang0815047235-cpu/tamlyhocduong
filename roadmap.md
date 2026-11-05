@@ -17,3 +17,5 @@
 - [x] Thêm mục tài khoản trong thanh điều hướng để xem thông tin, lịch hẹn và lịch sử cảm xúc
 - [x] Thông báo lịch hẹn chờ duyệt cho đúng giáo viên được chọn
 - [x] Báo cáo tâm lý hàng tuần tự động (AI tổng hợp)
+- [x] Bài ngắn 20 câu + thang chuẩn DASS-21 song song (cả học sinh và giáo viên, chọn ngay trong trang kiểm tra)
+- [ ] Chuyển sang backend Supabase riêng của người dùng — đang chờ người dùng tạo dự án riêng và xuất dữ liệu
