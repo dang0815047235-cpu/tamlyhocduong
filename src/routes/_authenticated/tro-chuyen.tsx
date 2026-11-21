@@ -52,18 +52,67 @@ function ChatPage() {
   ]);
   const [input, setInput] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [typingMessageId, setTypingMessageId] = useState<number | null>(null);
+  const [revealedLength, setRevealedLength] = useState(0);
+  const [composerFocused, setComposerFocused] = useState(false);
+  const [thinking, setThinking] = useState(false);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const updateViewportHeight = () => {
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty("--chat-viewport-height", `${height}px`);
+    };
+    const visualViewport = window.visualViewport;
+    updateViewportHeight();
+    window.addEventListener("resize", updateViewportHeight);
+    visualViewport?.addEventListener("resize", updateViewportHeight);
+    return () => {
+      window.removeEventListener("resize", updateViewportHeight);
+      visualViewport?.removeEventListener("resize", updateViewportHeight);
+      document.documentElement.style.removeProperty("--chat-viewport-height");
+    };
+  }, []);
+
+  useEffect(() => {
+    const message = messages.find((item) => item.id === typingMessageId && item.from === "bot");
+    if (!message || typingMessageId === null) return;
+
+    const characters = Array.from(message.text);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setRevealedLength(characters.length);
+      setTypingMessageId(null);
+      return;
+    }
+
+    let visible = 0;
+    const timer = window.setInterval(() => {
+      visible = Math.min(visible + 2, characters.length);
+      setRevealedLength(visible);
+      if (visible >= characters.length) {
+        window.clearInterval(timer);
+        setTypingMessageId(null);
+      }
+    }, 24);
+
+    return () => window.clearInterval(timer);
+  }, [typingMessageId, messages]);
+
+  useEffect(() => {
+    const chatScroll = chatScrollRef.current;
+    if (!chatScroll) return;
+    chatScroll.scrollTo({
+      top: chatScroll.scrollHeight,
+      behavior: typingMessageId === null ? "smooth" : "auto",
+    });
+  }, [messages, revealedLength, thinking, typingMessageId]);
 
   const askAI = useServerFn(askCounselorAI);
-  const [thinking, setThinking] = useState(false);
 
   const send = async (text: string) => {
     const clean = text.trim();
-    if (!clean || thinking) return;
+    if (!clean || thinking || typingMessageId !== null) return;
     const answer = answerMessage(clean);
     setInput("");
     inputRef.current?.focus();
@@ -91,13 +140,15 @@ function ChatPage() {
     setMessages((prev) => [...prev, { id: prev.length, from: "me", text: clean }]);
     setThinking(true);
     try {
-       const res = await askAI({ data: { message: clean, history } });
-      setMessages((prev) => [
-        ...prev,
-        res.ok
-          ? { id: prev.length, from: "bot", text: res.text }
-          : { id: prev.length, from: "bot", text: res.error },
-        ]);
+      const res = await askAI({ data: { message: clean, history } });
+      if (res.ok) {
+        const responseId = Date.now();
+        setRevealedLength(0);
+        setTypingMessageId(responseId);
+        setMessages((prev) => [...prev, { id: responseId, from: "bot", text: res.text }]);
+      } else {
+        setMessages((prev) => [...prev, { id: prev.length, from: "bot", text: res.error }]);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -113,10 +164,11 @@ function ChatPage() {
     <PageShell
       title="Trò chuyện cùng trợ lý"
       description="Bạn có thể chia sẻ về học tập, công việc, các mối quan hệ hoặc điều đang khiến mình bận lòng."
+      fullViewport
     >
-      <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
-        <Card className="flex h-[32rem] flex-col overflow-hidden p-0">
-          <div className="flex-1 space-y-4 overflow-y-auto p-4">
+      <div className="grid min-h-0 flex-1 gap-4 lg:flex-none lg:grid-cols-[1fr_18rem] lg:gap-6">
+        <Card className="flex min-h-0 flex-col overflow-hidden p-0 lg:h-[32rem]">
+          <div ref={chatScrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4">
             {messages.map((m) => (
               <div key={m.id} className={m.from === "me" ? "flex justify-end" : "flex gap-2"}>
                 {m.from === "bot" && (
@@ -138,7 +190,10 @@ function ChatPage() {
                       <AlertTriangle className="size-4" /> Cần hỗ trợ khẩn cấp
                     </p>
                   )}
-                  <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
+                  <p className="whitespace-pre-line leading-relaxed">
+                    {m.id === typingMessageId ? Array.from(m.text).slice(0, revealedLength).join("") : m.text}
+                    {m.id === typingMessageId && <span aria-hidden="true" className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-current align-middle" />}
+                  </p>
                   {m.links && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {m.links.map((l) => (
@@ -160,13 +215,14 @@ function ChatPage() {
             <div ref={endRef} />
           </div>
 
-          <div className="border-t border-border p-3">
-            <div className="mb-2 flex flex-wrap gap-2">
+          <div className="shrink-0 border-t border-border p-3">
+            <div className={composerFocused ? "mb-2 hidden flex-wrap gap-2 sm:flex" : "mb-2 flex flex-wrap gap-2"}>
               {suggestions.map((s) => (
                 <button
                   key={s}
                   onClick={() => void send(s)}
-                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  disabled={thinking || typingMessageId !== null}
+                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -181,19 +237,20 @@ function ChatPage() {
             >
               <Input
                 ref={inputRef}
-                autoFocus
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onFocus={() => setComposerFocused(true)}
+                onBlur={() => setComposerFocused(false)}
                 placeholder="Nhập điều bạn muốn chia sẻ..."
               />
-              <Button type="submit" size="icon" aria-label="Gửi" disabled={thinking}>
+              <Button type="submit" size="icon" aria-label="Gửi" disabled={thinking || typingMessageId !== null}>
                 <Send className="size-4" />
               </Button>
             </form>
           </div>
         </Card>
 
-        <div className="space-y-4">
+        <div className="hidden space-y-4 lg:block">
           <Card>
             <CardContent className="space-y-2 pt-6 text-sm">
               <p className="font-semibold">Trợ lý hiểu các nhóm chủ đề</p>

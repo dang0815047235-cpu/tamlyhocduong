@@ -18,4 +18,5 @@
 - [x] Thông báo lịch hẹn chờ duyệt cho đúng giáo viên được chọn
 - [x] Báo cáo tâm lý hàng tuần tự động (AI tổng hợp)
 - [x] Bài ngắn 20 câu + thang chuẩn DASS-21 song song (cả học sinh và giáo viên, chọn ngay trong trang kiểm tra)
+- [x] Giữ khung trò chuyện trên màn hình điện thoại khi mở bàn phím; câu trả lời AI hiện dần và tự cuộn
 - [ ] Chuyển sang backend Supabase riêng của người dùng — đang chờ người dùng tạo dự án riêng và xuất dữ liệu
