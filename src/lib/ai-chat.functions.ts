@@ -56,7 +56,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
         text = (await ask("gemini-flash-lite-latest")).text;
       } catch (first) {
         console.error("AI primary model failed", (first as { statusCode?: number }).statusCode);
-        text = (await ask("gemini-flash-latest")).text;
+        text = (await ask("gemini-3.5-flash-lite")).text;
       }
       if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
       await context.supabase.from("chat_logs").insert([
