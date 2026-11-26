@@ -78,7 +78,17 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
     const google = createGoogleGenerativeAI({ apiKey: key });
-    const messages = [...data.history.slice(-10), { role: "user" as const, content: data.message }];
+    const messages = buildGeminiMessages(data.history, data.message);
+
+  const ask = (modelId: string) =>
+    generateText({
+      model: google(modelId),
+      system: SYSTEM,
+      messages,
+      maxOutputTokens: 1500,
+      maxRetries: 1,
+      abortSignal: AbortSignal.timeout(20_000),
+    });
 
     // minimal thinking = nhanh, nhưng không phải model nào cũng nhận tham số này.
     // Khi tắt thinkingConfig, model có thể "nghĩ" nhiều hơn và tốn token đầu ra, nên nới maxOutputTokens.
