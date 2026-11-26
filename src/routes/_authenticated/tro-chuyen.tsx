@@ -149,10 +149,11 @@ function ChatPage() {
       } else {
         setMessages((prev) => [...prev, { id: prev.length, from: "bot", text: res.error }]);
       }
-    } catch {
+    } catch (err) {
+      console.error("askCounselorAI request failed", err);
       setMessages((prev) => [
         ...prev,
-        { id: prev.length, from: "bot", text: "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé." },
+        { id: prev.length, from: "bot", text: "Mình chưa kết nối được với máy chủ. Bạn thử tải lại trang hoặc đăng nhập lại nhé." },
       ]);
     } finally {
       setThinking(false);
