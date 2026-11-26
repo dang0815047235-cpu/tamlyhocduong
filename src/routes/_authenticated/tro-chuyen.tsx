@@ -27,13 +27,14 @@ export const Route = createFileRoute("/_authenticated/tro-chuyen")({
   component: ChatPage,
 });
 
-type Msg = {
-  id: number;
-  from: "bot" | "me";
-  text: string;
-  emergency?: boolean;
-  links?: { label: string; to: string }[];
-};
+ type Msg = {
+    id: number;
+    from: "bot" | "me";
+    text: string;
+    emergency?: boolean;
+    isError?: boolean;
+    links?: { label: string; to: string }[];
+  };
 
 const suggestions = [
   "Mình thấy rất áp lực chuyện thi cử",
@@ -133,7 +134,10 @@ function ChatPage() {
     }
 
     // Keep the full conversation so follow-up questions have their context.
-    const history = messages.map((m) => ({
+    // Keep conversation history valid for Gemini: skip initial bot greeting (id === 0) and error messages
+  const history = messages
+    .filter((m) => m.id !== 0 && !m.isError)
+    .map((m) => ({
       role: m.from === "me" ? ("user" as const) : ("assistant" as const),
       content: m.text,
     }));
