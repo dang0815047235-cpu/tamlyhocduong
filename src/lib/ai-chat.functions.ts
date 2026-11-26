@@ -53,7 +53,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     try {
       let text = "";
       try {
-        text = (await ask("gemini-flash-lite-latest")).text;
+        text = (await ask("gemini-3.5-flash-lite")).text;
       } catch (first) {
         console.error("AI primary model failed", (first as { statusCode?: number }).statusCode);
         text = (await ask("gemini-3.5-flash-lite")).text;
