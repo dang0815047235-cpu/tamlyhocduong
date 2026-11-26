@@ -31,7 +31,7 @@ AN TOÀN: nếu có dấu hiệu tự hại, muốn chết, bị bạo lực, x�
 // Model cố định (không dùng alias "-latest" vì Google đổi model phía sau mà không báo,
 // có thể làm lỗi tham số như thinkingLevel). Đổi model bằng biến môi trường, không cần sửa code.
 const PRIMARY_MODEL = process.env["GEMINI_MODEL"] ?? "gemini-3.1-flash-lite";
-const FALLBACK_MODEL = process.env["GEMINI_FALLBACK_MODEL"] ?? "gemini-3.5-flash";
+const FALLBACK_MODEL = process.env["GEMINI_FALLBACK_MODEL"] ?? "gemini-3.5-flash-lite";
 
 type ApiFailure = {
   statusCode?: number;
