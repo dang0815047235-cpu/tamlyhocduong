@@ -167,7 +167,7 @@ Nếu căng thẳng kéo dài nhiều ngày, bạn nên đặt lịch gặp th�
     id: "chao-hoi",
     group: "Chào hỏi",
     keywords: ["xin chào", "chào bạn", "hello", "hi", "alo", "chào"],
-    reply: `Chào bạn! Mình là trợ lý ảo hỗ trợ tư vấn tâm lý học đường của Trường THPT Phạm Văn Đồng.
+    reply: `Chào bạn! Mình là trợ lý ảo hỗ trợ tư vấn tâm lý học đường của Trường THCS & THPT Phạm Văn Đồng.
 Bạn có thể hỏi mình về: áp lực học tập, mâu thuẫn bạn bè, bắt nạt học đường, hoặc cách đặt lịch gặp thầy cô.`,
   },
 ];

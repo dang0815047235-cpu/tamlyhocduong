@@ -25,7 +25,7 @@ import { INCIDENT_TYPES, REPORT_STATUS, SEVERITIES } from "@/lib/constants";
 export const Route = createFileRoute("/_authenticated/bao-cao")({
   head: () => ({
     meta: [
-      { title: "Báo cáo sự việc cần hỗ trợ | THPT Phạm Văn Đồng" },
+      { title: "Báo cáo sự việc cần hỗ trợ | THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content: "Biểu mẫu gửi báo cáo sự việc cần hỗ trợ tới thầy cô, có tùy chọn gửi ẩn danh.",

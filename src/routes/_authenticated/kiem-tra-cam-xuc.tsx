@@ -25,7 +25,7 @@ import {
 export const Route = createFileRoute("/_authenticated/kiem-tra-cam-xuc")({
   head: () => ({
     meta: [
-      { title: "Bài kiểm tra cảm xúc ngắn | Tâm lý học đường THPT Phạm Văn Đồng" },
+      { title: "Bài kiểm tra cảm xúc ngắn | Tâm lý học đường THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content:

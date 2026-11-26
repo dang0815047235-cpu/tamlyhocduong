@@ -54,7 +54,7 @@ export function AppHeader() {
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-bold">Trợ lý tâm lý học đường</span>
-            <span className="block text-xs text-muted-foreground">THPT Phạm Văn Đồng</span>
+            <span className="block text-xs text-muted-foreground">THCS &amp; THPT Phạm Văn Đồng</span>
           </span>
         </Link>
 
@@ -160,7 +160,7 @@ export function AppFooter() {
   return (
     <footer className="mt-16 border-t border-border bg-card/60">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-muted-foreground">
-        <p className="font-medium text-foreground">Trường THPT Phạm Văn Đồng</p>
+        <p className="font-medium text-foreground">Trường THCS &amp; THPT Phạm Văn Đồng</p>
         <p className="mt-1">
           Sản phẩm học tập, sử dụng dữ liệu minh họa. Trang web chỉ hỗ trợ bước đầu, không chẩn đoán tâm lý và
           không thay thế giáo viên tư vấn hoặc chuyên gia.

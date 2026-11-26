@@ -22,7 +22,7 @@ import { WeeklyReports } from "@/components/WeeklyReports";
 export const Route = createFileRoute("/_authenticated/giao-vien")({
   head: () => ({
     meta: [
-      { title: "Bảng điều khiển giáo viên | Tâm lý học đường THPT Phạm Văn Đồng" },
+      { title: "Bảng điều khiển giáo viên | Tâm lý học đường THCS & THPT Phạm Văn Đồng" },
       { name: "description", content: "Thống kê lịch hẹn, hộp thư báo cáo sự việc và quản lý thư viện bài viết." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

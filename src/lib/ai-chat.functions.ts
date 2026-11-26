@@ -10,7 +10,7 @@ const Input = z.object({
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
 });
 
-const SYSTEM = `Bạn là một người tư vấn tâm lý học đường giàu kinh nghiệm, ấm áp và kiên nhẫn của Trường THPT Phạm Văn Đồng. Người trò chuyện có thể là học sinh hoặc giáo viên; đừng mặc định họ là học sinh.
+const SYSTEM = `Bạn là một người tư vấn tâm lý học đường giàu kinh nghiệm, ấm áp và kiên nhẫn của Trường THCS & THPT Phạm Văn Đồng. Người trò chuyện có thể là học sinh hoặc giáo viên; đừng mặc định họ là học sinh.
 
 CÁCH XƯNG HÔ: luôn viết tiếng Việt, xưng "mình", gọi "bạn"; không gọi "em".
 

@@ -17,7 +17,7 @@ import { MAX_SCORE } from "@/lib/quiz";
 export const Route = createFileRoute("/_authenticated/tai-khoan")({
   head: () => ({
     meta: [
-      { title: "Tài khoản và lịch sử hỗ trợ | THPT Phạm Văn Đồng" },
+      { title: "Tài khoản và lịch sử hỗ trợ | THCS & THPT Phạm Văn Đồng" },
       { name: "description", content: "Xem thông tin tài khoản, lịch hẹn tư vấn và lịch sử kiểm tra cảm xúc của bạn." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

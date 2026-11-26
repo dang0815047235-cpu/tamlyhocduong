@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 export const Route = createFileRoute("/dang-nhap")({
   head: () => ({
     meta: [
-      { title: "Đăng nhập | Trợ lý tâm lý học đường THPT Phạm Văn Đồng" },
+      { title: "Đăng nhập | Trợ lý tâm lý học đường THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content: "Đăng nhập hoặc tạo tài khoản học sinh, giáo viên để sử dụng trợ lý tư vấn tâm lý học đường.",
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/dang-nhap")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Đăng nhập | Trợ lý tâm lý học đường" },
-      { property: "og:description", content: "Tài khoản dành cho học sinh và giáo viên Trường THPT Phạm Văn Đồng." },
+      { property: "og:description", content: "Tài khoản dành cho học sinh và giáo viên Trường THCS & THPT Phạm Văn Đồng." },
     ],
   }),
   component: AuthPage,
@@ -110,7 +110,7 @@ function AuthPage() {
         </span>
         <span>
           <span className="block font-bold">Trợ lý tâm lý học đường</span>
-          <span className="block text-xs text-muted-foreground">Trường THPT Phạm Văn Đồng</span>
+          <span className="block text-xs text-muted-foreground">Trường THCS &amp; THPT Phạm Văn Đồng</span>
         </span>
       </Link>
 

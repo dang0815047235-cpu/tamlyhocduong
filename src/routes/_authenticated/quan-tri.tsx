@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/_authenticated/quan-tri")({
   head: () => ({
     meta: [
-      { title: "Quản trị - Duyệt tài khoản giáo viên | THPT Phạm Văn Đồng" },
+      { title: "Quản trị - Duyệt tài khoản giáo viên | THCS & THPT Phạm Văn Đồng" },
       { name: "description", content: "Quản trị viên phê duyệt tài khoản giáo viên tư vấn tâm lý học đường." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

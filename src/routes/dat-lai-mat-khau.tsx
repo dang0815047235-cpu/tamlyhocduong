@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export const Route = createFileRoute("/dat-lai-mat-khau")({
   head: () => ({
     meta: [
-      { title: "Đặt lại mật khẩu | THPT Phạm Văn Đồng" },
+      { title: "Đặt lại mật khẩu | THCS & THPT Phạm Văn Đồng" },
       { name: "description", content: "Tạo mật khẩu mới cho tài khoản trợ lý tâm lý học đường." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -84,13 +84,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Trợ lý ảo hỗ trợ tư vấn tâm lý học đường - Trường THPT Phạm Văn Đồng: trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn và thư viện kỹ năng.",
+          "Trợ lý ảo hỗ trợ tư vấn tâm lý học đường - Trường THCS & THPT Phạm Văn Đồng: trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn và thư viện kỹ năng.",
       },
-      { name: "author", content: "Trường THPT Phạm Văn Đồng" },
+      { name: "author", content: "Trường THCS & THPT Phạm Văn Đồng" },
       { property: "og:title", content: "Trợ lý ảo hỗ trợ tư vấn tâm lý học đường" },
       {
         property: "og:description",
-        content: "Đồng hành cùng học sinh THPT Phạm Văn Đồng về sức khỏe tinh thần.",
+        content: "Đồng hành cùng học sinh THCS & THPT Phạm Văn Đồng về sức khỏe tinh thần.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

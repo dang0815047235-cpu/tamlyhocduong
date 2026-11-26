@@ -17,7 +17,7 @@ import {
 export const Route = createFileRoute("/thu-vien")({
   head: () => ({
     meta: [
-      { title: "Thư viện kỹ năng và sức khỏe tinh thần | THPT Phạm Văn Đồng" },
+      { title: "Thư viện kỹ năng và sức khỏe tinh thần | THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content:
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/thu-vien")({
       { property: "og:title", content: "Thư viện kỹ năng và sức khỏe tinh thần" },
       {
         property: "og:description",
-        content: "Bài viết đã được thầy cô duyệt dành cho học sinh THPT Phạm Văn Đồng.",
+        content: "Bài viết đã được thầy cô duyệt dành cho học sinh THCS & THPT Phạm Văn Đồng.",
       },
     ],
   }),

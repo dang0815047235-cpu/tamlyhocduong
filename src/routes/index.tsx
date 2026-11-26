@@ -15,15 +15,15 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trợ lý ảo tư vấn tâm lý học đường | THPT Phạm Văn Đồng" },
+      { title: "Trợ lý ảo tư vấn tâm lý học đường | THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content:
-          "Nơi cộng đồng THPT Phạm Văn Đồng trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn, gửi báo cáo sự việc và đọc bài viết về sức khỏe tinh thần.",
+          "Nơi cộng đồng THCS & THPT Phạm Văn Đồng trò chuyện, kiểm tra cảm xúc, đặt lịch tư vấn, gửi báo cáo sự việc và đọc bài viết về sức khỏe tinh thần.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { property: "og:title", content: "Trợ lý ảo tư vấn tâm lý học đường | THPT Phạm Văn Đồng" },
+      { property: "og:title", content: "Trợ lý ảo tư vấn tâm lý học đường | THCS & THPT Phạm Văn Đồng" },
       {
         property: "og:description",
         content: "Các hình thức hỗ trợ tâm lý học đường: trò chuyện, kiểm tra cảm xúc, đặt lịch, báo cáo, thư viện.",
@@ -77,7 +77,7 @@ function Home() {
         <section className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:py-16">
           <div>
             <span className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
-              Trường THPT Phạm Văn Đồng
+              Trường THCS &amp; THPT Phạm Văn Đồng
             </span>
             <h1 className="mt-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
               Bạn không phải đi qua chuyện khó một mình

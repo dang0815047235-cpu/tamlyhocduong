@@ -24,7 +24,7 @@ import { APPOINTMENT_STATUS, APPOINTMENT_TOPICS, SLOTS } from "@/lib/constants";
 export const Route = createFileRoute("/_authenticated/dat-lich")({
   head: () => ({
     meta: [
-      { title: "Đặt lịch tư vấn tâm lý | THPT Phạm Văn Đồng" },
+      { title: "Đặt lịch tư vấn tâm lý | THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content: "Chọn ngày, khung giờ, giáo viên và chủ đề để đặt lịch gặp phòng tư vấn tâm lý học đường.",

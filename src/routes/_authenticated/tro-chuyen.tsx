@@ -12,7 +12,7 @@ import { askCounselorAI } from "@/lib/ai-chat.functions";
 export const Route = createFileRoute("/_authenticated/tro-chuyen")({
   head: () => ({
     meta: [
-      { title: "Trò chuyện cùng trợ lý | Tâm lý học đường THPT Phạm Văn Đồng" },
+      { title: "Trò chuyện cùng trợ lý | Tâm lý học đường THCS & THPT Phạm Văn Đồng" },
       {
         name: "description",
         content:
