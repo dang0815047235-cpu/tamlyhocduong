@@ -28,6 +28,45 @@ GIỚI HẠN: không chẩn đoán, không tư vấn thuốc/điều trị. Khó
 
 AN TOÀN: nếu có dấu hiệu tự hại, muốn chết, bị bạo lực, xâm hại hoặc nguy hiểm tức thời — vẫn giữ sự ấm áp nhưng nói rõ sự quan tâm đến an toàn của họ, hỏi trực tiếp họ có đang an toàn không, khuyến khích tìm ngay một người lớn tin cậy ở gần, gọi 111 (bảo vệ trẻ em, miễn phí 24/7) hoặc 113 khi nguy hiểm tức thời. Không hứa giữ bí mật tuyệt đối.`;
 
+// Model cố định (không dùng alias "-latest" vì Google đổi model phía sau mà không báo,
+// có thể làm lỗi tham số như thinkingLevel). Đổi model bằng biến môi trường, không cần sửa code.
+const PRIMARY_MODEL = process.env["GEMINI_MODEL"] ?? "gemini-3.1-flash-lite";
+const FALLBACK_MODEL = process.env["GEMINI_FALLBACK_MODEL"] ?? "gemini-3.5-flash";
+
+type ApiFailure = {
+  statusCode?: number;
+  message?: string;
+  responseBody?: string;
+  name?: string;
+  cause?: ApiFailure;
+  lastError?: ApiFailure;
+  errors?: ApiFailure[];
+};
+
+function statusOf(e: unknown): number | undefined {
+  const f = e as ApiFailure | undefined;
+  return (
+    f?.statusCode ??
+    f?.lastError?.statusCode ??
+    f?.cause?.statusCode ??
+    f?.errors?.find((x) => x.statusCode)?.statusCode
+  );
+}
+
+// Ghi log đủ để biết nguyên nhân thật (trước đây chỉ log mỗi mã trạng thái).
+function describe(e: unknown): string {
+  const f = e as ApiFailure | undefined;
+  const inner = f?.lastError ?? f?.cause ?? f;
+  return [
+    f?.name,
+    statusOf(e),
+    (inner?.message ?? "").slice(0, 300),
+    (inner?.responseBody ?? "").slice(0, 300),
+  ]
+    .filter(Boolean)
+    .join(" | ");
+}
+
 export const askCounselorAI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => Input.parse(d))
@@ -36,50 +75,64 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
     const google = createGoogleGenerativeAI({ apiKey: key });
-
-    let providerStatus: number | undefined;
     const messages = [...data.history.slice(-10), { role: "user" as const, content: data.message }];
-    // Gemini 3 models reject thinkingBudget; thinkingLevel "minimal" keeps replies fast.
-    const ask = (modelId: string) =>
+
+    // minimal thinking = nhanh, nhưng không phải model nào cũng nhận tham số này.
+    // Khi tắt thinkingConfig, model có thể "nghĩ" nhiều hơn và tốn token đầu ra, nên nới maxOutputTokens.
+    const ask = (modelId: string, minimalThinking: boolean) =>
       generateText({
         model: google(modelId),
         system: SYSTEM,
         messages,
-        maxOutputTokens: 600,
+        maxOutputTokens: minimalThinking ? 600 : 1500,
         maxRetries: 1,
-        abortSignal: AbortSignal.timeout(25_000),
-        providerOptions: { google: { thinkingConfig: { thinkingLevel: "minimal" } } },
+        abortSignal: AbortSignal.timeout(20_000),
+        ...(minimalThinking
+          ? { providerOptions: { google: { thinkingConfig: { thinkingLevel: "minimal" } } } }
+          : {}),
       });
-    try {
-      let text = "";
-      try {
-        text = (await ask("gemini-3.5-flash-lite")).text;
-      } catch (first) {
-        console.error("AI primary model failed", (first as { statusCode?: number }).statusCode);
-        text = (await ask("gemini-3.5-flash-lite")).text;
+
+    let text = "";
+    let lastStatus: number | undefined;
+    let failed = false;
+
+    outer: for (const modelId of [PRIMARY_MODEL, FALLBACK_MODEL]) {
+      for (const minimalThinking of [true, false]) {
+        try {
+          text = (await ask(modelId, minimalThinking)).text.trim();
+          if (text) break outer;
+          console.error("AI empty reply", modelId, minimalThinking ? "minimal" : "default");
+        } catch (e) {
+          failed = true;
+          const status = statusOf(e);
+          if (status !== undefined) lastStatus = status;
+          console.error("AI call failed", modelId, minimalThinking ? "minimal" : "default", describe(e));
+          if (status === 401 || status === 403) break outer; // lỗi khóa/quyền: thử model khác cũng vô ích
+          if (status !== 400) break; // chỉ lỗi 400 mới thử lại cùng model nhưng bỏ thinkingConfig
+        }
       }
-      if (!text.trim()) return { ok: false as const, error: "Mình chưa thể trả lời lúc này. Bạn thử lại sau nhé." };
-      await context.supabase.from("chat_logs").insert([
-        { user_id: context.userId, role: "user", content: data.message },
-        { user_id: context.userId, role: "assistant", content: text.trim() },
-      ]);
-      return { ok: true as const, text: text.trim() };
-    } catch (e) {
-      const failure = e as { statusCode?: number; cause?: { statusCode?: number }; errors?: Array<{ statusCode?: number }> };
-      const status = providerStatus ?? failure.statusCode ?? failure.cause?.statusCode ?? failure.errors?.find((item) => item.statusCode)?.statusCode;
-      console.error("AI chat error", status, e instanceof Error ? e.name : "unknown");
+    }
+
+    if (!text) {
+      const code = lastStatus ?? (failed ? "mạng/hết giờ" : "rỗng");
       return {
         ok: false as const,
         error:
-          status === 429
+          lastStatus === 429
             ? "Trợ lý AI đang bận, bạn thử lại sau ít phút nhé."
-            : status === 402
+            : lastStatus === 402
               ? "Trợ lý AI tạm hết lượt sử dụng."
-              : status === 403
-                 ? "Gemini chưa cho phép dùng trợ lý với tài khoản hiện tại. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
-                : status === 401
-                   ? "Trợ lý AI chưa thể kết nối với Gemini. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
-                : "Mình chưa thể trả lời lúc này. Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé.",
+              : lastStatus === 403 || lastStatus === 401
+                ? "Trợ lý AI chưa thể kết nối với Gemini. Bạn có thể gặp giáo viên tư vấn để được hỗ trợ nhé."
+                : `Mình chưa thể trả lời lúc này (mã: ${code}). Bạn thử lại sau hoặc gặp giáo viên tư vấn nhé.`,
       };
     }
+
+    const { error: logError } = await context.supabase.from("chat_logs").insert([
+      { user_id: context.userId, role: "user", content: data.message },
+      { user_id: context.userId, role: "assistant", content: text },
+    ]);
+    if (logError) console.error("chat_logs insert failed", logError.message);
+
+    return { ok: true as const, text };
   });
