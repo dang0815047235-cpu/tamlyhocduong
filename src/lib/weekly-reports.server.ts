@@ -1,8 +1,9 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { statusOf } from "./ai-chat.functions";
 
-const BATCH = 25;
+export const WEEKLY_REPORT_BATCH = 10;
 const LOCK = "weekly_reports";
 
 export function currentWeekStart(d = new Date()) {
@@ -38,7 +39,7 @@ export async function runWeeklyReports(): Promise<Result> {
     const todo = ids.filter((id) => !doneSet.has(id));
 
     let created = 0;
-    for (const sid of todo.slice(0, BATCH)) {
+    for (const sid of todo.slice(0, WEEKLY_REPORT_BATCH)) {
       const [{ data: prof }, { data: chats }, { data: checks }, { data: appts }, { data: reps }] = await Promise.all([
         db.from("profiles").select("display_name, class_name").eq("id", sid).maybeSingle(),
         db.from("chat_logs").select("content").eq("user_id", sid).eq("role", "user").gte("created_at", since).order("created_at").limit(40),
@@ -67,31 +68,51 @@ Viết báo cáo tình hình tâm lý tuần cho giáo viên tư vấn bằng ti
 {"sentiment":"positive|neutral|negative","summary":"3-5 câu tóm tắt tình hình","guidance":"nếu tiêu cực: 3-4 hướng giải quyết cụ thể cho giáo viên; nếu tích cực/ổn: lời khích lệ ấm áp gửi học sinh và cách duy trì"}`;
       try {
         const { text } = await generateText({
-          model: google("gemini-flash-latest"),
+          model: google("gemini-3.1-flash-lite"),
           prompt,
           maxOutputTokens: 800,
-          maxRetries: 1,
+          maxRetries: 0,
           abortSignal: AbortSignal.timeout(30_000),
           providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
         });
         const parsed = JSON.parse(text.replace(/```json|```/g, "").trim()) as { sentiment?: string; summary?: string; guidance?: string };
-        const sentiment = ["positive", "neutral", "negative"].includes(parsed.sentiment ?? "") ? parsed.sentiment! : "neutral";
+        const sentiment = parsed.sentiment === "positive" || parsed.sentiment === "neutral" || parsed.sentiment === "negative"
+          ? parsed.sentiment
+          : "neutral";
         await db.from("weekly_reports").insert({
           student_id: sid, student_name: name, week_start: weekStart, sentiment, stats,
           summary: parsed.summary ?? "", guidance: parsed.guidance ?? "",
         });
         created++;
       } catch (e) {
-        const status = (e as { statusCode?: number }).statusCode;
-        if (status === 429 || status === 402 || status === 403) {
-          const reason = status === 429 ? "AI đang quá tải, sẽ thử lại lượt sau." : "AI tạm không khả dụng.";
+        const status = statusOf(e);
+        if (status === 429 || status === 402 || status === 403 || status === 401) {
+          const reason = status === 429
+            ? "AI đang quá tải, sẽ thử lại lượt sau."
+            : status === 402
+              ? "AI tạm hết lượt sử dụng."
+              : "AI chưa thể kết nối; hãy kiểm tra khóa và quyền truy cập.";
           await db.from("job_locks").update({ paused_reason: reason }).eq("name", LOCK);
           return { created, remaining: true, paused: reason };
         }
         console.error("weekly report failed", status);
+        const { error: fallbackError } = await db.from("weekly_reports").insert({
+          student_id: sid,
+          student_name: name,
+          week_start: weekStart,
+          sentiment: "neutral",
+          stats,
+          summary: "Chưa tạo được báo cáo tự động tuần này.",
+          guidance: "Giáo viên có thể hỏi thăm nhẹ nhàng khi gặp trực tiếp.",
+        });
+        if (fallbackError) {
+          console.error("weekly report fallback insert failed", fallbackError.message);
+        } else {
+          created++;
+        }
       }
     }
-    const remaining = todo.length > BATCH;
+    const remaining = todo.length > WEEKLY_REPORT_BATCH;
     if (!remaining) {
       // Whole week done -> build the overall weekly digest (once per week)
       const { data: existing } = await db.from("weekly_summaries").select("id").eq("week_start", weekStart).maybeSingle();
@@ -119,23 +140,14 @@ Viết báo cáo tình hình tâm lý tuần cho giáo viên tư vấn bằng ti
 Viết bản báo cáo tổng hợp đầu tuần gửi ban giám hiệu và giáo viên tư vấn bằng tiếng Việt, giọng chuyên nghiệp, ấm áp. Không chẩn đoán bệnh. Trả về JSON đúng dạng:
 {"summary":"5-8 câu tóm tắt tình hình tâm lý chung của học sinh trong tuần, xu hướng nổi bật","recommendations":"4-6 đề xuất hướng xử lý/chăm sóc cụ thể cho tuần tới"}`;
         try {
-          let text = "";
-          for (const m of ["gemini-flash-lite-latest", "gemini-flash-latest"]) {
-            try {
-              ({ text } = await generateText({
-                model: google(m),
-                prompt: digestPrompt,
-                maxOutputTokens: 1200,
-                maxRetries: 1,
-                abortSignal: AbortSignal.timeout(30_000),
-                providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
-              }));
-              break;
-            } catch (err) {
-              console.error("weekly digest model failed", m, (err as Error).message?.slice(0, 200));
-            }
-          }
-          if (!text) throw new Error("all digest models failed");
+          const { text } = await generateText({
+            model: google("gemini-3.1-flash-lite"),
+            prompt: digestPrompt,
+            maxOutputTokens: 1200,
+            maxRetries: 0,
+            abortSignal: AbortSignal.timeout(30_000),
+            providerOptions: { google: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } },
+          });
           const parsed = JSON.parse(text.replace(/```json|```/g, "").trim()) as { summary?: string; recommendations?: string };
           await db.from("weekly_summaries").insert({
             week_start: weekStart,
@@ -144,7 +156,18 @@ Viết bản báo cáo tổng hợp đầu tuần gửi ban giám hiệu và gi�
             stats: totals,
           });
         } catch (e) {
-          console.error("weekly digest failed", (e as { statusCode?: number }).statusCode);
+          const status = statusOf(e);
+          console.error("weekly digest failed", status);
+          if (status === 429 || status === 402 || status === 403 || status === 401) {
+            const reason = status === 429
+              ? "AI đang quá tải, sẽ thử lại lượt sau."
+              : status === 402
+                ? "AI tạm hết lượt sử dụng."
+                : "AI chưa thể kết nối; hãy kiểm tra khóa và quyền truy cập.";
+            await db.from("job_locks").update({ paused_reason: reason }).eq("name", LOCK);
+            return { created, remaining: true, paused: reason };
+          }
+          return { created, remaining: true };
         }
       }
     }

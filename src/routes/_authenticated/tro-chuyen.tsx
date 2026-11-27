@@ -151,7 +151,16 @@ function ChatPage() {
         setTypingMessageId(responseId);
         setMessages((prev) => [...prev, { id: responseId, from: "bot", text: res.text }]);
       } else {
-        setMessages((prev) => [...prev, { id: prev.length, from: "bot", text: res.error }]);
+        const matchedRule = answer.group !== "Không khớp";
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length,
+            from: "bot",
+            text: matchedRule ? answer.reply : res.error,
+            ...(matchedRule && answer.links ? { links: answer.links } : {}),
+          },
+        ]);
       }
     } catch (err) {
       console.error("askCounselorAI request failed", err);
