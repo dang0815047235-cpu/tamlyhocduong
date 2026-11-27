@@ -17,8 +17,8 @@ Nếu có dấu hiệu tự hại, bạo lực hoặc nguy hiểm tức thời, 
 
 // Chỉ dùng tên model ổn định. Mọi key và cuộc trò chuyện đều nằm ở hàm server.
 const DEFAULT_MODELS = [
-  process.env.GEMINI_MODEL || "gemini-2.5-flash-lite",
-  process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash",
+  process.env["GEMINI_MODEL"] || "gemini-2.5-flash-lite",
+  process.env["GEMINI_FALLBACK_MODEL"] || "gemini-2.5-flash",
 ];
 
 type ApiFailure = {
@@ -31,7 +31,7 @@ type ApiFailure = {
   errors?: ApiFailure[];
 };
 
-function statusOf(error: unknown): number | undefined {
+export function statusOf(error: unknown): number | undefined {
   const value = error as ApiFailure | undefined;
   return (
     value?.statusCode ??
@@ -56,7 +56,7 @@ export const askCounselorAI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((value: unknown) => Input.parse(value))
   .handler(async ({ data, context }) => {
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
     const google = createGoogleGenerativeAI({ apiKey: key });
