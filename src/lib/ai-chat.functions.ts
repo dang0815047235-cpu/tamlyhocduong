@@ -59,7 +59,14 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     const key = process.env["GEMINI_API_KEY"];
     if (!key) return { ok: false as const, error: "Trợ lý AI chưa được cấu hình." };
 
-    const google = createGoogleGenerativeAI({ apiKey: key });
+    // Đi qua proxy ở Mỹ nếu có GEMINI_BASE_URL (tránh lỗi 400 "User location is not supported").
+    const baseURL = process.env["GEMINI_BASE_URL"];
+    const proxyToken = process.env["GEMINI_PROXY_TOKEN"];
+    const google = createGoogleGenerativeAI({
+      apiKey: key,
+      ...(baseURL ? { baseURL } : {}),
+      ...(proxyToken ? { headers: { "x-proxy-token": proxyToken } } : {}),
+    });
     const messages = [
       ...data.history.map((item) => ({
         role: item.role,

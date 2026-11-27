@@ -26,7 +26,14 @@ export async function runWeeklyReports(): Promise<Result> {
   try {
     const key = process.env["GEMINI_API_KEY"];
     if (!key) return { created: 0, remaining: false, paused: "Chưa cấu hình AI." };
-    const google = createGoogleGenerativeAI({ apiKey: key });
+    // Đi qua proxy ở Mỹ nếu có GEMINI_BASE_URL (tránh lỗi 400 "User location is not supported").
+    const baseURL = process.env["GEMINI_BASE_URL"];
+    const proxyToken = process.env["GEMINI_PROXY_TOKEN"];
+    const google = createGoogleGenerativeAI({
+      apiKey: key,
+      ...(baseURL ? { baseURL } : {}),
+      ...(proxyToken ? { headers: { "x-proxy-token": proxyToken } } : {}),
+    });
 
     const weekStart = currentWeekStart(now);
     const since = new Date(now.getTime() - 7 * 86400_000).toISOString();
