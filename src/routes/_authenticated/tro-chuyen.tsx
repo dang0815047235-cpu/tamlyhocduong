@@ -81,11 +81,6 @@ function ChatPage() {
     if (!message || typingMessageId === null) return;
 
     const characters = Array.from(message.text);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRevealedLength(characters.length);
-      setTypingMessageId(null);
-      return;
-    }
 
     let visible = 0;
     const timer = window.setInterval(() => {
@@ -95,7 +90,7 @@ function ChatPage() {
         window.clearInterval(timer);
         setTypingMessageId(null);
       }
-    }, 36);
+    }, 24);
 
     return () => window.clearInterval(timer);
   }, [typingMessageId, messages]);
@@ -198,8 +193,8 @@ function ChatPage() {
       description="Bạn có thể chia sẻ về học tập, công việc, các mối quan hệ hoặc điều đang khiến mình bận lòng."
       fullViewport
     >
-      <div className="grid min-h-0 flex-1 gap-4 lg:flex-none lg:grid-cols-[1fr_18rem] lg:gap-6">
-        <Card className="flex min-h-0 flex-col overflow-hidden p-0 lg:h-[32rem]">
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1fr_18rem] lg:gap-6">
+        <Card className="flex min-h-0 flex-col overflow-hidden p-0">
           <div ref={chatScrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4">
             {messages.map((m) => (
               <div key={m.id} className={m.from === "me" ? "flex justify-end" : "flex gap-2"}>
@@ -282,7 +277,7 @@ function ChatPage() {
           </div>
         </Card>
 
-        <div className="hidden space-y-4 lg:block">
+        <div className="hidden space-y-4 lg:block lg:min-h-0 lg:overflow-y-auto">
           <Card>
             <CardContent className="space-y-2 pt-6 text-sm">
               <p className="font-semibold">Trợ lý hiểu các nhóm chủ đề</p>
