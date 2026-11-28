@@ -95,7 +95,7 @@ function ChatPage() {
         window.clearInterval(timer);
         setTypingMessageId(null);
       }
-    }, 24);
+    }, 36);
 
     return () => window.clearInterval(timer);
   }, [typingMessageId, messages]);
