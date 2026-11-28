@@ -1,6 +1,6 @@
-# Tâm Lý Vui
+# Tâm Lý Học Đường 
 
-Xây dựng ứng dụng web Trợ lý ảo hỗ trợ tư vấn tâm lý học đường cho Trường THPT Phạm Văn Đồng theo đúng tài liệu đề xuất kỹ thuật đính kèm:
+Xây dựng ứng dụng web Trợ lý ảo hỗ trợ tư vấn tâm lý học đường cho Trường THCS & THPT Phạm Văn Đồng theo đúng tài liệu đề xuất kỹ thuật đính kèm:
 
 1. Khu vực học sinh:
 - Đăng nhập tài khoản mẫu (vai trò học sinh/giáo viên)
