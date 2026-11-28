@@ -5,9 +5,9 @@ import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { answerMessage, CHAT_RULES } from "@/lib/chatbot-rules";
+import { answerMessage, CHAT_RULES, linksFor } from "@/lib/chatbot-rules";
 import { useServerFn } from "@tanstack/react-start";
-import { askCounselorAI } from "@/lib/ai-chat.functions";
+import { askCounselorAI, logRuleChat } from "@/lib/ai-chat.functions";
 
 export const Route = createFileRoute("/_authenticated/tro-chuyen")({
   head: () => ({
@@ -110,6 +110,7 @@ function ChatPage() {
   }, [messages, revealedLength, thinking, typingMessageId]);
 
   const askAI = useServerFn(askCounselorAI);
+  const logRule = useServerFn(logRuleChat);
 
   const send = async (text: string) => {
     const clean = text.trim();
@@ -118,7 +119,8 @@ function ChatPage() {
     setInput("");
     inputRef.current?.focus();
 
-    if (answer.isEmergency) {
+    // 1) Khẩn cấp hoặc khớp đúng một nhóm → trả ngay câu viết sẵn, không tốn lượt AI.
+    if (answer.matched) {
       setMessages((prev) => [
         ...prev,
         { id: prev.length, from: "me", text: clean },
@@ -130,17 +132,21 @@ function ChatPage() {
           ...(answer.links ? { links: answer.links } : {}),
         },
       ]);
+      // Lưu log ở nền (không chặn giao diện) để báo cáo tuần của giáo viên vẫn đủ dữ liệu.
+      void logRule({ data: { message: clean.slice(0, 1000) } }).catch((err) =>
+        console.error("logRuleChat failed", err),
+      );
       return;
     }
 
-    // Keep the full conversation so follow-up questions have their context.
-    // Keep conversation history valid for Gemini: skip initial bot greeting (id === 0) and error messages
-  const history = messages
-    .filter((m) => m.id !== 0 && !m.isError)
-    .map((m) => ({
-      role: m.from === "me" ? ("user" as const) : ("assistant" as const),
-      content: m.text,
-    }));
+    // 2) Không khớp rule (hoặc nhiều chủ đề) → hỏi AI, giữ ngữ cảnh hội thoại.
+    // Bỏ lời chào ban đầu (id === 0) và các tin báo lỗi để lịch sử hợp lệ với Gemini.
+    const history = messages
+      .filter((m) => m.id !== 0 && !m.isError)
+      .map((m) => ({
+        role: m.from === "me" ? ("user" as const) : ("assistant" as const),
+        content: m.text,
+      }));
     setMessages((prev) => [...prev, { id: prev.length, from: "me", text: clean }]);
     setThinking(true);
     try {
@@ -149,16 +155,18 @@ function ChatPage() {
         const responseId = Date.now();
         setRevealedLength(0);
         setTypingMessageId(responseId);
-        setMessages((prev) => [...prev, { id: responseId, from: "bot", text: res.text }]);
+        setMessages((prev) => [
+          ...prev,
+          { id: responseId, from: "bot", text: res.text, links: linksFor(clean, res.text) },
+        ]);
       } else {
-        const matchedRule = answer.group !== "Không khớp";
         setMessages((prev) => [
           ...prev,
           {
             id: prev.length,
             from: "bot",
-            text: matchedRule ? answer.reply : res.error,
-            ...(matchedRule && answer.links ? { links: answer.links } : {}),
+            text: res.error,
+            links: linksFor(clean),
           },
         ]);
       }
@@ -166,7 +174,11 @@ function ChatPage() {
       console.error("askCounselorAI request failed", err);
       setMessages((prev) => [
         ...prev,
-        { id: prev.length, from: "bot", text: "Mình chưa kết nối được với máy chủ. Bạn thử tải lại trang hoặc đăng nhập lại nhé." },
+        {
+          id: prev.length,
+          from: "bot",
+          text: "Mình chưa kết nối được với máy chủ. Bạn thử tải lại trang hoặc đăng nhập lại nhé.",
+        },
       ]);
     } finally {
       setThinking(false);
@@ -208,7 +220,7 @@ function ChatPage() {
                     {m.id === typingMessageId ? Array.from(m.text).slice(0, revealedLength).join("") : m.text}
                     {m.id === typingMessageId && <span aria-hidden="true" className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-current align-middle" />}
                   </p>
-                  {m.links && (
+                  {m.links && m.id !== typingMessageId && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {m.links.map((l) => (
                         <Button key={l.to + l.label} asChild size="sm" variant="secondary">
