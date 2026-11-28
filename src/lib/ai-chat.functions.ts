@@ -3,6 +3,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { answerMessage } from "@/lib/chatbot-rules";
 
 const Input = z.object({
   message: z.string().min(1).max(1000),
@@ -119,4 +120,25 @@ export const askCounselorAI = createServerFn({ method: "POST" })
     if (logError) console.error("chat_logs insert failed", logError.message);
 
     return { ok: true as const, text };
+  });
+
+
+// Lưu log cho các lượt được trả lời bằng rule (không đi qua AI) để báo cáo tuần vẫn đủ dữ liệu.
+// Câu trả lời được tính lại ở server từ chính tin nhắn, client không thể gửi nội dung bot tuỳ ý.
+export const logRuleChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((value: unknown) => z.object({ message: z.string().min(1).max(1000) }).parse(value))
+  .handler(async ({ data, context }) => {
+    const answer = answerMessage(data.message);
+    if (!answer.matched) return { ok: false as const };
+
+    const { error } = await context.supabase.from("chat_logs").insert([
+      { user_id: context.userId, role: "user", content: data.message },
+      { user_id: context.userId, role: "assistant", content: answer.reply },
+    ]);
+    if (error) {
+      console.error("chat_logs insert failed (rule)", error.message);
+      return { ok: false as const };
+    }
+    return { ok: true as const };
   });
