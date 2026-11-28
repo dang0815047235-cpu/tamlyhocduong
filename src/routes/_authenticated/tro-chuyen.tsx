@@ -119,19 +119,25 @@ function ChatPage() {
     setInput("");
     inputRef.current?.focus();
 
-    // 1) Khẩn cấp hoặc khớp đúng một nhóm → trả ngay câu viết sẵn, không tốn lượt AI.
+    // 1) Khẩn cấp hoặc khớp đúng một nhóm → trả câu viết sẵn, không tốn lượt AI.
     if (answer.matched) {
+      const botId = Date.now();
       setMessages((prev) => [
         ...prev,
         { id: prev.length, from: "me", text: clean },
         {
-          id: prev.length + 1,
+          id: botId,
           from: "bot",
           text: answer.reply,
           emergency: answer.isEmergency,
           ...(answer.links ? { links: answer.links } : {}),
         },
       ]);
+      // Câu thường: gõ chữ dần như câu của AI. Câu khẩn cấp: hiện ngay lập tức.
+      if (!answer.isEmergency) {
+        setRevealedLength(0);
+        setTypingMessageId(botId);
+      }
       // Lưu log ở nền (không chặn giao diện) để báo cáo tuần của giáo viên vẫn đủ dữ liệu.
       void logRule({ data: { message: clean.slice(0, 1000) } }).catch((err) =>
         console.error("logRuleChat failed", err),
