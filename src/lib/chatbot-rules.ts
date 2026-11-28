@@ -4,6 +4,8 @@ export type ChatRule = {
   keywords: string[];
   reply: string;
   links?: { label: string; to: string }[];
+  /** Chỉ áp dụng rule này khi tin nhắn ngắn (ví dụ lời chào). */
+  maxWords?: number;
 };
 
 export const EMERGENCY_KEYWORDS = [
@@ -136,7 +138,8 @@ Nếu căng thẳng kéo dài nhiều ngày, bạn nên đặt lịch gặp th�
       "tu van",
       "gặp thầy",
       "gặp cô",
-      "hẹn",
+      "đặt hẹn",
+      "hẹn gặp",
       "lịch hẹn",
       "gặp chuyên viên",
     ],
@@ -166,6 +169,7 @@ Nếu căng thẳng kéo dài nhiều ngày, bạn nên đặt lịch gặp th�
   {
     id: "chao-hoi",
     group: "Chào hỏi",
+    maxWords: 4,
     keywords: ["xin chào", "chào bạn", "hello", "hi", "alo", "chào"],
     reply: `Chào bạn! Mình là trợ lý ảo hỗ trợ tư vấn tâm lý học đường của Trường THCS & THPT Phạm Văn Đồng.
 Bạn có thể hỏi mình về: áp lực học tập, mâu thuẫn bạn bè, bắt nạt học đường, hoặc cách đặt lịch gặp thầy cô.`,
@@ -176,34 +180,92 @@ export type BotAnswer = {
   reply: string;
   group: string;
   isEmergency: boolean;
+  /** true khi có câu trả lời viết sẵn (khẩn cấp hoặc khớp đúng 1 nhóm). false → nhường cho AI. */
+  matched: boolean;
   links?: { label: string; to: string }[];
 };
+
+const DEFAULT_LINKS = [
+  { label: "Thư viện bài viết", to: "/thu-vien" },
+  { label: "Đặt lịch gặp thầy cô", to: "/dat-lich" },
+];
+
+// Từ khóa ngắn (≤ 3 ký tự) phải đứng riêng thành một từ, tránh "hi" khớp nhầm vào "nghĩ", "chị", "thi"...
+function matches(text: string, keyword: string): boolean {
+  if (keyword.length > 3) return text.includes(keyword);
+  return new RegExp(`(^|[^\\p{L}])${keyword}($|[^\\p{L}])`, "u").test(text);
+}
 
 export function answerMessage(input: string): BotAnswer {
   const text = input.toLowerCase().trim();
 
   if (EMERGENCY_KEYWORDS.some((k) => text.includes(k))) {
-    return { reply: EMERGENCY_REPLY, group: "Khẩn cấp", isEmergency: true };
+    return { reply: EMERGENCY_REPLY, group: "Khẩn cấp", isEmergency: true, matched: true };
   }
 
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  let topScore = 0;
+  let top: ChatRule[] = [];
+
   for (const rule of CHAT_RULES) {
-    if (rule.keywords.some((k) => text.includes(k))) {
-      return {
-        reply: rule.reply,
-        group: rule.group,
-        isEmergency: false,
-        ...(rule.links ? { links: rule.links } : {}),
-      };
+    if (rule.maxWords !== undefined && wordCount > rule.maxWords) continue;
+    const score = rule.keywords.filter((k) => matches(text, k)).length;
+    if (score === 0 || score < topScore) continue;
+    if (score > topScore) {
+      topScore = score;
+      top = [rule];
+    } else {
+      top.push(rule);
     }
+  }
+
+  // Chỉ trả câu viết sẵn khi khớp đúng MỘT nhóm. Khớp nhiều nhóm hòa điểm
+  // (tin nhắn nhiều chủ đề) thì để AI trả lời cho đầy đủ.
+  const [rule] = top;
+  if (rule && top.length === 1) {
+    return {
+      reply: rule.reply,
+      group: rule.group,
+      isEmergency: false,
+      matched: true,
+      ...(rule.links ? { links: rule.links } : {}),
+    };
   }
 
   return {
     reply: FALLBACK_REPLY,
     group: "Không khớp",
     isEmergency: false,
-    links: [
-      { label: "Thư viện bài viết", to: "/thu-vien" },
-      { label: "Đặt lịch gặp thầy cô", to: "/dat-lich" },
-    ],
+    matched: false,
+    links: DEFAULT_LINKS,
   };
+}
+
+// Gợi ý khi AI khuyên học sinh tìm người hỗ trợ → thêm nút đặt lịch.
+const COUNSELOR_HINTS = ["giáo viên tư vấn", "thầy cô", "giáo viên chủ nhiệm", "chuyên gia", "tư vấn viên"];
+
+/**
+ * Link đi kèm câu trả lời của AI, dùng chung hệ link với các rule.
+ * - Lấy link của MỌI nhóm chủ đề khớp trong tin nhắn học sinh (kể cả khi nhiều nhóm hòa điểm).
+ * - Nếu AI khuyên gặp thầy cô / chuyên gia thì thêm link đặt lịch.
+ * - Không có chủ đề nào thì dùng link mặc định (Thư viện, Đặt lịch).
+ */
+export function linksFor(userText: string, aiText = ""): { label: string; to: string }[] {
+  const text = userText.toLowerCase().trim();
+  const reply = aiText.toLowerCase();
+  const picked: { label: string; to: string }[] = [];
+  const add = (list: { label: string; to: string }[] | undefined) => {
+    for (const link of list ?? []) {
+      if (!picked.some((p) => p.to === link.to)) picked.push(link);
+    }
+  };
+
+  for (const rule of CHAT_RULES) {
+    if (rule.maxWords !== undefined) continue; // bỏ qua rule chào hỏi
+    if (rule.keywords.some((k) => matches(text, k))) add(rule.links);
+  }
+  if (picked.length === 0) add(DEFAULT_LINKS);
+  if (COUNSELOR_HINTS.some((h) => reply.includes(h))) add(DEFAULT_LINKS.slice(1));
+
+  return picked.slice(0, 4);
 }
